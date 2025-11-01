@@ -1,0 +1,21 @@
+id,zone_category,zone_name,connections,color,x,y,z
+node_1,tunel_principal,Zona Central,node_4;node_5;node_7,#3366cc,0,0,0
+node_4,tunel_secundario,Túnel Noreste,node_1;node_8;node_10,#6699ff,-7,-8,-5
+node_5,tunel_secundario,Túnel Noroeste,node_1;node_11;node_13,#66ccff,-25,-12,-8
+node_7,tunel_secundario,Túnel Sureste,node_1;node_12;node_17,#99ccff,10,-3,-3
+node_8,extraccion,Zona Extracción A,node_4;node_18,#ff6600,-20,-15,-12
+node_10,ventilacion,Ventilación Principal,node_4;node_23,#66ffff,-30,-18,-15
+node_11,almacen,Almacén Norte,node_5;node_24,#6699ff,-35,-20,-25
+node_12,control,Sala de Control,node_7;node_25;node_26,#cc66ff,-15,-15,-8
+node_13,descanso,Área de Descanso,node_5;node_30,#66ccff,-15,-5,-10
+node_17,emergencia,Refugio Este,node_7;node_31,#ff3330,-30,-19,-15
+node_18,extraccion,Zona Extracción B,node_8;node_32,#ff6600,-25,-25,-20
+node_23,ventilacion,Ventilación Secundaria,node_10;node_33,#66ffff,-35,-25,-18
+node_24,almacen,Almacén Profundo,node_11;node_34,#6699ff,-40,-25,-30
+node_25,monitoreo,Monitoreo Sur,node_12,#cc66ff,-20,-25,-15
+node_26,comunicaciones,Comunicaciones,node_12,#ffcc00,-10,-20,-12
+node_30,descanso,Área Descanso Norte,node_13,#66ccff,-20,-10,-15
+node_31,emergencia,Refugio Oeste,node_17,#ff3330,-35,-25,-20
+node_32,extraccion,Zona Extracción C,node_18,#ff6600,-30,-30,-25
+node_33,ventilacion,Ventilación de Reserva,node_23,#66ffff,-40,-30,-22
+node_34,almacen,Almacén de Reserva,node_24,#6699ff,-45,-30,-35

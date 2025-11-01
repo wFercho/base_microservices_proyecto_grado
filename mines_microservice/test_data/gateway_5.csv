@@ -1,0 +1,3 @@
+id,zone_category,zone_name,connections,color,x,y,z
+node_30,tunel,Corredor de Respaldo,node_26;node_31,#FF69B4,-32,-8,-11
+node_34,tunel,Sala de Control,node_33,#CD5C5C,45,-22,-30

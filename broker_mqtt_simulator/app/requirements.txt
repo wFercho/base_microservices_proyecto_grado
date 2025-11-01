@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+paho-mqtt
+websockets
+asyncio
+asyncpg==0.29.0

@@ -1,0 +1,7 @@
+id,zone_category,zone_name,connections,color,x,y,z
+node_18,tunel,Corredor Central,node_13;node_19,#FFD700,30,-10,-18
+node_28,tunel,Pasillo Este,node_27;node_29,#ADFF2F,32,-12,-20
+node_29,tunel,Intersección Central,node_28;node_31,#7FFF00,35,-14,-22
+node_31,tunel,Túnel de Servicio,node_29;node_32,#00FA9A,38,-16,-24
+node_32,tunel,Corredor de Mantenimiento,node_31;node_33,#3CB371,40,-18,-26
+node_33,tunel,Área Técnica,node_32;node_34,#2E8B57,42,-20,-28

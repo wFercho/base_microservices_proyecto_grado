@@ -1,0 +1,7 @@
+id,zone_category,zone_name,connections,color,x,y,z
+node_3,tunel,Corredor Sur,node_1;node_6,#0000ff,-5,0,-2
+node_20,bocamina,Entrada Secundaria,node_3;node_23,#9370DB,-10,2,-1
+node_23,tunel,Acceso Externo,node_20;node_24,#BA55D3,-15,0,-3
+node_24,tunel,Corredor Externo,node_23;node_25,#DA70D6,-20,-2,-5
+node_25,tunel,Túnel Perimetral,node_24;node_26,#EE82EE,-25,-4,-7
+node_26,tunel,Conector Sur,node_25;node_30,#DDA0DD,-30,-6,-9

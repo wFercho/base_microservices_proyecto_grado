@@ -1,0 +1,51 @@
+# Binarios compilados
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Archivos de salida de compilación
+/bin/
+/dist/
+/main
+
+# Directorio de dependencias vendored (opcional)
+/vendor/
+
+# Archivos de prueba y cobertura
+*.test
+*.out
+/coverage.txt
+/profile.out
+
+# Archivos específicos de Go
+/go.mod
+/go.sum
+
+# Archivos de IDE y editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos temporales
+tmp/
+temp/
+
+# Logs
+*.log
+
+# Archivos de entorno
+.env
+.env.local
+.env.*.local
+
+# Documentación generada
+/doc/
+/godoc/
+
+# Archivos específicos de sistemas operativos
+.DS_Store
+Thumbs.db

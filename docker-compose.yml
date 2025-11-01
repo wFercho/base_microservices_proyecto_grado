@@ -1,0 +1,147 @@
+name: iot_mines_platform
+
+services:
+  # ==================== MQTT BROKER ====================
+  broker_mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: broker_mosquitto
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./broker_mqtt_simulator/mosquitto/config:/mosquitto/config
+    networks:
+      - iot-network
+    restart: always
+
+  # ==================== MQTT SIMULATOR ====================
+  broker_mqtt_simulator:
+    build: ./broker_mqtt_simulator
+    container_name: broker_mqtt_simulator
+    ports:
+      - "8000:8000"
+    depends_on:
+      - broker_mosquitto
+    networks:
+      - iot-network
+    restart: unless-stopped
+
+  # ==================== IOT DEVICES DATABASE ====================
+  iot_devices_postgres:
+    image: postgres:13
+    container_name: iot_devices_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${IOT_DEVICES_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${IOT_DEVICES_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${IOT_DEVICES_POSTGRES_DB}
+    ports:
+      - "5433:5432"
+    volumes:
+      - iot_devices_postgres_data:/var/lib/postgresql/data
+      - ./iot_devices_microservice/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - iot-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${IOT_DEVICES_POSTGRES_USER} -d ${IOT_DEVICES_POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # ==================== IOT DEVICES MICROSERVICE ====================
+  iot_devices_microservice:
+    build:
+      context: ./iot_devices_microservice
+      dockerfile: Dockerfile
+    container_name: iot_devices_microservice
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env
+    volumes:
+      - ./iot_devices_microservice/alembic:/app/alembic
+    depends_on:
+      iot_devices_postgres:
+        condition: service_healthy
+      broker_mosquitto:
+        condition: service_started
+    networks:
+      - iot-network
+    restart: unless-stopped
+
+  # ==================== MINES DATABASE (POSTGRES) ====================
+  mines_postgres:
+    image: postgres:13
+    container_name: mines_postgres
+    environment:
+      POSTGRES_USER: ${MINES_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${MINES_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${MINES_POSTGRES_DB}
+    ports:
+      - "5434:5432"
+    volumes:
+      - mines_postgres_data:/var/lib/postgresql/data
+    networks:
+      - mines-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${MINES_POSTGRES_USER} -d ${MINES_POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: always
+
+  # ==================== MINES DATABASE (MONGODB) ====================
+  mines_mongo:
+    image: mongo:latest
+    container_name: mines_mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mines_mongo_data:/data/db
+    networks:
+      - mines-network
+    healthcheck:
+      test: [ "CMD-SHELL", "mongosh --username ${MONGO_USERNAME} --password ${MONGO_PASSWORD} --authenticationDatabase admin --eval 'db.runCommand(\"ping\").ok' | grep 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: always
+
+  # ==================== MINES MICROSERVICE ====================
+  mines_microservice:
+    build:
+      context: ./mines_microservice
+      dockerfile: build/docker/app/Dockerfile
+    container_name: mines_microservice
+    env_file:
+      - .env
+    ports:
+      - "8082:8082"
+    depends_on:
+      mines_postgres:
+        condition: service_healthy
+      mines_mongo:
+        condition: service_healthy
+    networks:
+      - iot-network
+      - mines-network
+    restart: unless-stopped
+
+# ==================== NETWORKS ====================
+networks:
+  iot-network:
+    driver: bridge
+  mines-network:
+    driver: bridge
+
+# ==================== VOLUMES ====================
+volumes:
+  iot_devices_postgres_data:
+  mines_postgres_data:
+  mines_mongo_data:

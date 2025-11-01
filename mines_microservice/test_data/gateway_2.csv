@@ -1,0 +1,13 @@
+id,zone_category,zone_name,connections,color,x,y,z
+node_2,extraction,Frente Mina A,node_6;node_9;node_14,#88ff00,-20,-5,-10
+node_6,extraction,Galeria Extracción A,node_2;node_15;node_16,#00ff88,-35,-10,-15
+node_9,extraction,Área Carga A,node_2;node_19;node_21,#ff8800,-50,-15,-20
+node_14,extraction,Frente Mina B,node_2;node_16;node_22,#880088,-20,-8,-12
+node_15,extraction,Galeria Extracción B,node_6;node_19;node_27,#888800,-35,-13,-17
+node_16,extraction,Pasillo Mineral,node_6;node_14;node_28,#008888,-50,-18,-22
+node_19,extraction,Área Carga B,node_9;node_15;node_29,#880000,-65,-20,-25
+node_21,extraction,Nivel -150 A,node_9;node_22,#000088,-80,-25,-30
+node_22,extraction,Fondo Mina A,node_14;node_21;node_27,#888888,-95,-30,-35
+node_27,extraction,Galeria Sur,node_15;node_22;node_28,#444444,-65,-23,-28
+node_28,extraction,Nivel -150 B,node_16;node_27;node_29,#ff4444,-80,-28,-33
+node_29,extraction,Fondo Mina B,node_19;node_28,#44ff44,-95,-33,-38

@@ -1,0 +1,11 @@
+id,zone_category,zone_name,connections,color,x,y,z
+node_1,bocamina,Entrada Principal,node_2;node_3,#ff0000,0,0,0
+node_2,tunel,Corredor Norte,node_1;node_4;node_5,#00ff00,5,0,-2
+node_3,tunel,Corredor Sur,node_1;node_6,#0000ff,-5,0,-2
+node_4,extraction,Muro Oeste,node_2;node_7,#ffff00,10,-2,-5
+node_5,extraction,Muro Este,node_2,#ff00ff,5,-5,-8
+node_6,extraction,Muro Sur,node_3;node_9,#00ffff,-5,-3,-7
+node_7,tunel,Acceso Principal,node_4;node_8,#ff8800,15,-4,-10
+node_8,bocamina,Salida de Emergencia,node_7,#8800ff,20,-6,-12
+node_9,tunel,Corredor Central,node_6;node_10,#228B22,-10,-5,-10
+node_10,extraction,Muro Profundo,node_9,#8B0000,-15,-8,-15

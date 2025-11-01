@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente IoT Mining Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .status.connected {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .status.disconnected {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .stats {
+            padding: 20px 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            background: #ecf0f1;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            margin-top: 8px;
+        }
+        
+        .data-container {
+            padding: 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .sensor-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+        
+        .sensor-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .sensor-card.normal {
+            border-left: 5px solid #27ae60;
+        }
+        
+        .sensor-card.warning {
+            border-left: 5px solid #f39c12;
+            background: #fff9e6;
+        }
+        
+        .sensor-card.danger {
+            border-left: 5px solid #e74c3c;
+            background: #ffe6e6;
+        }
+        
+        .sensor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .sensor-id {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .sensor-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .sensor-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #7f8c8d;
+        }
+        
+        .subscriptions {
+            padding: 20px 30px;
+            background: #e8f5e9;
+            border-top: 2px solid #c8e6c9;
+        }
+        
+        .subscription-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .subscription-tag {
+            background: #4caf50;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏔️ Monitor IoT Minero</h1>
+            <p>Sistema de monitoreo en tiempo real de sensores</p>
+            <div class="status disconnected" id="status">● Desconectado</div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>URL del Servidor WebSocket:</label>
+                <input type="text" id="wsUrl" value="ws://localhost:8000/ws" placeholder="ws://localhost:8000/ws">
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-primary" onclick="connect()">🔌 Conectar</button>
+                <button class="btn-danger" onclick="disconnect()">🔌 Desconectar</button>
+                <button class="btn-warning" onclick="clearData()">🗑️ Limpiar Datos</button>
+            </div>
+            
+            <div class="control-group" style="margin-top: 20px;">
+                <label>Suscribirse a Sensores (IDs separados por comas, o "all"):</label>
+                <input type="text" id="sensorIds" placeholder="1,2,3 o all">
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-success" onclick="subscribe()">➕ Suscribirse</button>
+                <button class="btn-danger" onclick="unsubscribe()">➖ Desuscribirse</button>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="messageCount">0</div>
+                <div class="stat-label">Mensajes Recibidos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="sensorCount">0</div>
+                <div class="stat-label">Sensores Únicos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="normalCount">0</div>
+                <div class="stat-label">Estado Normal</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="warningCount">0</div>
+                <div class="stat-label">Alertas</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="dangerCount">0</div>
+                <div class="stat-label">Peligros</div>
+            </div>
+        </div>
+        
+        <div class="subscriptions">
+            <strong>Suscripciones Activas:</strong>
+            <div class="subscription-list" id="subscriptionList">
+                <span class="subscription-tag">Ninguna</span>
+            </div>
+        </div>
+        
+        <div class="data-container" id="dataContainer">
+            <p style="text-align: center; color: #95a5a6;">Esperando conexión...</p>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let messageCount = 0;
+        let sensorData = {};
+        let statusCounts = { normal: 0, warning: 0, danger: 0 };
+        
+        function connect() {
+            const url = document.getElementById('wsUrl').value;
+            ws = new WebSocket(url);
+            
+            ws.onopen = () => {
+                updateStatus(true);
+                console.log('WebSocket conectado');
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                if (data.type === 'connection') {
+                    console.log('Conexión establecida:', data);
+                    updateSubscriptionList(data.subscriptions);
+                } else if (data.type === 'subscription') {
+                    console.log('Suscripción actualizada:', data);
+                    updateSubscriptionList(data.subscriptions);
+                } else if (data.sensor_id) {
+                    messageCount++;
+                    displaySensorData(data);
+                    updateStats();
+                }
+            };
+            
+            ws.onerror = (error) => {
+                console.error('Error WebSocket:', error);
+            };
+            
+            ws.onclose = () => {
+                updateStatus(false);
+                console.log('WebSocket desconectado');
+            };
+        }
+        
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+        
+        function subscribe() {
+            const input = document.getElementById('sensorIds').value.trim();
+            if (!ws || !input) return;
+            
+            let sensors = input === 'all' ? ['all'] : input.split(',').map(s => s.trim());
+            
+            ws.send(JSON.stringify({
+                action: 'subscribe',
+                sensors: sensors
+            }));
+        }
+        
+        function unsubscribe() {
+            const input = document.getElementById('sensorIds').value.trim();
+            if (!ws || !input) return;
+            
+            let sensors = input === 'all' ? ['all'] : input.split(',').map(s => s.trim());
+            
+            ws.send(JSON.stringify({
+                action: 'unsubscribe',
+                sensors: sensors
+            }));
+        }
+        
+        function displaySensorData(data) {
+            sensorData[data.sensor_id] = data;
+            
+            const container = document.getElementById('dataContainer');
+            container.innerHTML = '';
+            
+            Object.values(sensorData)
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                .forEach(sensor => {
+                    const card = document.createElement('div');
+                    card.className = `sensor-card ${sensor.status}`;
+                    card.innerHTML = `
+                        <div class="sensor-header">
+                            <div class="sensor-id">Sensor #${sensor.sensor_id} - ${sensor.variable}</div>
+                            <div class="status ${sensor.status}">${sensor.status.toUpperCase()}</div>
+                        </div>
+                        <div class="sensor-value">${sensor.value} ${sensor.unit}</div>
+                        <div class="sensor-details">
+                            <div><strong>Nodo:</strong> ${sensor.node_id || 'N/A'}</div>
+                            <div><strong>Marca:</strong> ${sensor.metadata.brand || 'N/A'}</div>
+                            <div><strong>Zona:</strong> ${sensor.metadata.zone_name || 'N/A'}</div>
+                            <div><strong>Categoría:</strong> ${sensor.metadata.zone_category || 'N/A'}</div>
+                            <div><strong>Mina:</strong> ${sensor.metadata.mine || 'N/A'}</div>
+                            <div><strong>Timestamp:</strong> ${new Date(sensor.timestamp).toLocaleString()}</div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+        }
+        
+        function updateStats() {
+            statusCounts = { normal: 0, warning: 0, danger: 0 };
+            Object.values(sensorData).forEach(sensor => {
+                statusCounts[sensor.status]++;
+            });
+            
+            document.getElementById('messageCount').textContent = messageCount;
+            document.getElementById('sensorCount').textContent = Object.keys(sensorData).length;
+            document.getElementById('normalCount').textContent = statusCounts.normal;
+            document.getElementById('warningCount').textContent = statusCounts.warning;
+            document.getElementById('dangerCount').textContent = statusCounts.danger;
+        }
+        
+        function updateStatus(connected) {
+            const statusEl = document.getElementById('status');
+            if (connected) {
+                statusEl.textContent = '● Conectado';
+                statusEl.className = 'status connected';
+            } else {
+                statusEl.textContent = '● Desconectado';
+                statusEl.className = 'status disconnected';
+            }
+        }
+        
+        function updateSubscriptionList(subscriptions) {
+            const listEl = document.getElementById('subscriptionList');
+            if (!subscriptions || subscriptions.length === 0) {
+                listEl.innerHTML = '<span class="subscription-tag">Ninguna</span>';
+                return;
+            }
+            
+            listEl.innerHTML = subscriptions
+                .map(s => `<span class="subscription-tag">${s}</span>`)
+                .join('');
+        }
+        
+        function clearData() {
+            sensorData = {};
+            messageCount = 0;
+            statusCounts = { normal: 0, warning: 0, danger: 0 };
+            document.getElementById('dataContainer').innerHTML = '<p style="text-align: center; color: #95a5a6;">Datos limpiados</p>';
+            updateStats();
+        }
+    </script>
+</body>
+</html>
