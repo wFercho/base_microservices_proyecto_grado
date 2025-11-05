@@ -17,7 +17,7 @@ type Sensor = {
 
 // Datos en tiempo real del WebSocket
 export type IRealTimeSensorData = {
-  sensor_id: number;
+  id: number;
   node_id: string;
   variable: string;
   value: number;
