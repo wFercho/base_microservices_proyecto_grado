@@ -12,7 +12,7 @@ class IoTGateway(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)  
     brand = Column(String(100), nullable=False)
     description = Column(Text) 
-    mine_zone_id = Column(UUID(as_uuid=True), ForeignKey('mine_zones.id', ondelete='SET NULL'), nullable=True)
+    mine_zone_id = Column(UUID(as_uuid=True), ForeignKey('mine.id', ondelete='SET NULL'), nullable=True)
 
     mine_zone = relationship("MineZone", back_populates="iot_gateways")
     sensor_nodes = relationship("SensorNode", back_populates="iot_gateway", cascade="all, delete-orphan", passive_deletes=True)

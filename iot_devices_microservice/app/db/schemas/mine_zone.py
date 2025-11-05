@@ -1,57 +1,51 @@
-# db/schemas/mine_zone.py
 from pydantic import BaseModel, ConfigDict
 import uuid
 from typing import List, Optional
 from datetime import datetime
 from app.db.schemas.iot_gateway import IoTGatewayResponse
 
+# Schemas para Mine
+class MineBase(BaseModel):
+    nombre: str
+    ubicacion: Optional[str] = None
+    provincia: Optional[str] = None
+    latitud: Optional[str] = None
+    longitud: Optional[str] = None
+    direccion: Optional[str] = None
+    empresa: Optional[str] = None
+    contacto: Optional[str] = None
+    estado: Optional[str] = 'activa' 
 
-
-# Schemas para MineZone
-class MineZoneBase(BaseModel):
-    name: str
-    description: Optional[str] = None
-    location: Optional[str] = None
-    zone_type: str
-    status: Optional[str] = 'active'
-    mine_type: Optional[str] = None
-    coordinates: Optional[str] = None
-    depth: Optional[str] = None
-    area: Optional[str] = None
-
-class MineZoneCreate(MineZoneBase):
+class MineCreate(MineBase):
     pass
 
-class MineZoneUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    location: Optional[str] = None
-    zone_type: Optional[str] = None
-    status: Optional[str] = None
-    mine_type: Optional[str] = None
-    coordinates: Optional[str] = None
-    depth: Optional[str] = None
-    area: Optional[str] = None
-    
+class MineUpdate(BaseModel):
+    nombre: Optional[str] = None
+    ubicacion: Optional[str] = None
+    provincia: Optional[str] = None
+    latitud: Optional[str] = None
+    longitud: Optional[str] = None
+    direccion: Optional[str] = None
+    empresa: Optional[str] = None
+    contacto: Optional[str] = None
+    estado: Optional[str] = None
+
     model_config = ConfigDict(from_attributes=True)
 
-class MineZoneResponse(MineZoneBase):
+class MineResponse(MineBase):
     id: uuid.UUID
-    created_at: datetime
-    updated_at: Optional[datetime] = None
     iot_gateways: List[IoTGatewayResponse] = []
     
     model_config = ConfigDict(from_attributes=True)
 
-class PaginatedMineZoneResponse(BaseModel):
+class PaginatedMineResponse(BaseModel):
     total: int
     page: int
     per_page: int
-    items: List[MineZoneResponse]
+    items: List[MineResponse]
 
-class IoTZonesIdResponse(BaseModel):
-    """Modelo para respuesta que solo contiene IDs de IoT Zones"""
+class MinesIdResponse(BaseModel):
+    """Modelo para respuesta que solo contiene IDs de Mines"""
     ids: List[str]  
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

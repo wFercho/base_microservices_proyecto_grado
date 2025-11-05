@@ -7,6 +7,7 @@ from app.db.models.mine_zone import MineZone
 from app.db.models.iot_gateway import IoTGateway  
 from app.db.models.sensor_node import SensorNode
 from app.db.models.sensor import Sensor
+from app.db.models.microservicios import MicroservicioDispositivosIoT, MicroservicioAlertas, MicroservicioStorage, MicroservicioMinas
 
 if Config.ENVIRONMENT in ["development", "test"]:
     Base.metadata.create_all(bind=engine)
