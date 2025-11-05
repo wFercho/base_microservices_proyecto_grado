@@ -23,7 +23,7 @@ type MinePostgresModel struct {
 }
 
 func (MinePostgresModel) TableName() string {
-	return "mine_zones"
+	return "mine"
 }
 
 func (mm *MinePostgresModel) ToDomain() *mine.Mine {

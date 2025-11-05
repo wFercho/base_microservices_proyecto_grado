@@ -51,7 +51,7 @@ class SensorSimulator:
                     s.min_medicion,
                     n.zone_name,
                     n.zone_category,
-                    g.associated_mine
+                    g.description
                 FROM sensores s
                 LEFT JOIN nodos_sensores n ON s.id_node = n.id
                 LEFT JOIN iot_gateways g ON n.id_iot_gateway = g.id
@@ -74,7 +74,7 @@ class SensorSimulator:
                     'min_value': float(row['min_medicion']) if row['min_medicion'] else None,
                     'zone_name': row['zone_name'],
                     'zone_category': row['zone_category'],
-                    'mine': row['associated_mine']
+                    'mine': row['description']
                 }
                 self.sensors_cache.append(sensor_data)
             
