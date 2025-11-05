@@ -1,9 +1,6 @@
 import { SensorNode } from "./Nodes";
 
-
-
-
-
+// interfaces/Mines.ts
 export interface IoTGateway {
   id: number;
   brand: string;
@@ -14,17 +11,15 @@ export interface IoTGateway {
 
 export interface MineZone {
   id: string;
-  name: string;
-  description?: string;
-  location?: string;
-  zone_type: string;
-  status: string;
-  mine_type?: string;
-  coordinates?: string;
-  depth?: string;
-  area?: string;
-  created_at: string;
-  updated_at?: string;
+  nombre: string;
+  ubicacion?: string;
+  provincia?: string;
+  latitud?: string;
+  longitud?: string;
+  direccion?: string;
+  empresa?: string;
+  contacto?: string;
+  estado: string;  // Nuevo campo: 'activa', 'inactiva', 'mantenimiento'
   iot_gateways: IoTGateway[];
 }
 

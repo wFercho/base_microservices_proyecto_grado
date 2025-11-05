@@ -11,26 +11,22 @@ interface MineFormProps {
   onCancel: () => void;
 }
 
-const MINE_TYPES = [
-  'underground',
-  'open_pit', 
-  'hybrid',
-  'alluvial',
-  'placer'
+const PROVINCES = [
+  'Azuay', 'Bolívar', 'Cañar', 'Carchi', 'Chimborazo', 'Cotopaxi', 'El Oro', 
+  'Esmeraldas', 'Galápagos', 'Guayas', 'Imbabura', 'Loja', 'Los Ríos', 
+  'Manabí', 'Morona Santiago', 'Napo', 'Orellana', 'Pastaza', 'Pichincha', 
+  'Santa Elena', 'Santo Domingo', 'Sucumbíos', 'Tungurahua', 'Zamora Chinchipe'
 ];
 
-const ZONE_TYPES = [
-  'mine',
-  'processing',
-  'storage',
-  'administrative',
-  'access'
+const STATUS_TYPES = [
+  'activa',
+  'inactiva', 
+  'mantenimiento'
 ];
 
 export const MineForm: React.FC<MineFormProps> = ({ initialData, onSuccess, onCancel }) => {
   const [formData, setFormData] = useState<Partial<MineZone>>(initialData || {
-    status: 'active',
-    zone_type: 'mine'
+    estado: 'activa'
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,14 +42,14 @@ export const MineForm: React.FC<MineFormProps> = ({ initialData, onSuccess, onCa
     const errors = { ...validationErrors };
     let isValid = true;
 
-    if (name === 'name' && !value) {
+    if (name === 'nombre' && !value) {
       errors[name] = 'El nombre es requerido';
       isValid = false;
-    } else if (name === 'name' && value && value.length < 3) {
+    } else if (name === 'nombre' && value && value.length < 3) {
       errors[name] = 'El nombre debe tener al menos 3 caracteres';
       isValid = false;
-    } else if (name === 'zone_type' && !value) {
-      errors[name] = 'El tipo de zona es requerido';
+    } else if (name === 'ubicacion' && !value) {
+      errors[name] = 'La ubicación es requerida';
       isValid = false;
     } else {
       delete errors[name];
@@ -67,13 +63,13 @@ export const MineForm: React.FC<MineFormProps> = ({ initialData, onSuccess, onCa
     const errors: Record<string, string> = {};
     let isValid = true;
 
-    if (!formData.name) {
-      errors.name = 'El nombre es requerido';
+    if (!formData.nombre) {
+      errors.nombre = 'El nombre es requerido';
       isValid = false;
     }
 
-    if (!formData.zone_type) {
-      errors.zone_type = 'El tipo de zona es requerido';
+    if (!formData.ubicacion) {
+      errors.ubicacion = 'La ubicación es requerida';
       isValid = false;
     }
 
@@ -93,7 +89,9 @@ export const MineForm: React.FC<MineFormProps> = ({ initialData, onSuccess, onCa
     setLoading(true);
 
     try {
+      console.log('Submitting form data:', formData, initialData);
       if (initialData?.id) {
+        console.log('Updating mine with ID:', initialData.id);
         await MineService.updateMine(initialData.id, formData);
       } else {
         await MineService.createMine(formData as any);
@@ -132,133 +130,142 @@ export const MineForm: React.FC<MineFormProps> = ({ initialData, onSuccess, onCa
             <label className="block text-sm font-medium text-gray-700">Nombre de la Mina *</label>
             <input
               type="text"
-              name="name"
-              value={formData.name || ''}
+              name="nombre"
+              value={formData.nombre || ''}
               onChange={handleChange}
               className={`mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${
-                validationErrors.name ? 'border-red-500' : ''
+                validationErrors.nombre ? 'border-red-500' : ''
               }`}
               placeholder="Ej: Mina Principal Subterránea"
               required
             />
-            {renderError('name')}
+            {renderError('nombre')}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Tipo de Mina</label>
-            <select
-              name="mine_type"
-              value={formData.mine_type || ''}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="">Seleccionar tipo...</option>
-              {MINE_TYPES.map(type => (
-                <option key={type} value={type}>
-                  {type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Tipo de Zona *</label>
-            <select
-              name="zone_type"
-              value={formData.zone_type || ''}
+            <label className="block text-sm font-medium text-gray-700">Ubicación *</label>
+            <input
+              type="text"
+              name="ubicacion"
+              value={formData.ubicacion || ''}
               onChange={handleChange}
               className={`mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${
-                validationErrors.zone_type ? 'border-red-500' : ''
+                validationErrors.ubicacion ? 'border-red-500' : ''
               }`}
+              placeholder="Ej: Cordillera de los Andes"
               required
-            >
-              <option value="">Seleccionar tipo...</option>
-              {ZONE_TYPES.map(type => (
-                <option key={type} value={type}>
-                  {type.charAt(0).toUpperCase() + type.slice(1)}
-                </option>
-              ))}
-            </select>
-            {renderError('zone_type')}
+            />
+            {renderError('ubicacion')}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Estado</label>
+            <label className="block text-sm font-medium text-gray-700">Provincia</label>
             <select
-              name="status"
-              value={formData.status || 'active'}
+              name="provincia"
+              value={formData.provincia || ''}
               onChange={handleChange}
               className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             >
-              <option value="active">Activa</option>
-              <option value="inactive">Inactiva</option>
+              <option value="">Seleccionar provincia...</option>
+              {PROVINCES.map(province => (
+                <option key={province} value={province}>
+                  {province}
+                </option>
+              ))}
             </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Empresa</label>
+            <input
+              type="text"
+              name="empresa"
+              value={formData.empresa || ''}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Ej: Minera del Sur S.A."
+            />
           </div>
         </div>
 
         {/* Columna Derecha */}
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Ubicación</label>
+            <label className="block text-sm font-medium text-gray-700">Dirección</label>
             <input
               type="text"
-              name="location"
-              value={formData.location || ''}
+              name="direccion"
+              value={formData.direccion || ''}
               onChange={handleChange}
               className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder="Ej: Cordillera de los Andes"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Coordenadas</label>
-            <input
-              type="text"
-              name="coordinates"
-              value={formData.coordinates || ''}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              placeholder="Ej: -33.4489, -70.6693"
+              placeholder="Ej: Av. Principal 123, Sector Industrial"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Profundidad</label>
+              <label className="block text-sm font-medium text-gray-700">Latitud</label>
               <input
                 type="text"
-                name="depth"
-                value={formData.depth || ''}
+                name="latitud"
+                value={formData.latitud || ''}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Ej: 450m"
+                placeholder="Ej: -2.170998"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Área</label>
+              <label className="block text-sm font-medium text-gray-700">Longitud</label>
               <input
                 type="text"
-                name="area"
-                value={formData.area || ''}
+                name="longitud"
+                value={formData.longitud || ''}
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Ej: 120 hectáreas"
+                placeholder="Ej: -79.922356"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Contacto</label>
+            <input
+              type="text"
+              name="contacto"
+              value={formData.contacto || ''}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              placeholder="Ej: Juan Pérez - juan@empresa.com"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Estado</label>
+            <select
+              name="estado"
+              value={formData.estado || 'activa'}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            >
+              {STATUS_TYPES.map(status => (
+                <option key={status} value={status}>
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium text-gray-700">Descripción</label>
-        <textarea
-          name="description"
-          value={formData.description || ''}
-          onChange={handleChange}
-          rows={4}
-          className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          placeholder="Descripción detallada de la mina, características principales, etc."
-        />
+      {/* Información Adicional */}
+      <div className="bg-gray-50 rounded-lg p-4">
+        <h3 className="text-sm font-medium text-gray-700 mb-3">Información Adicional</h3>
+        <div className="text-xs text-gray-600 space-y-1">
+          <p>• Los campos marcados con * son obligatorios</p>
+          <p>• La ubicación debe ser una descripción general del área minera</p>
+          <p>• Las coordenadas (latitud/longitud) son opcionales pero recomendadas</p>
+          <p>• El contacto puede ser una persona, email o teléfono de referencia</p>
+        </div>
       </div>
 
       <div className="flex justify-end space-x-3 pt-6">

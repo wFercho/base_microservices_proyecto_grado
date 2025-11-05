@@ -63,6 +63,8 @@ export const MineService = {
   // Actualizar mina
   async updateMine(mineId: string, mineData: Partial<MineZone>): Promise<MineZone> {
     try {
+          console.log('Updated mine data:', mineData.estado);
+
       const response = await axios.put(`${API_BASE_URL}/mine-zones/${mineId}`, mineData);
       return response.data;
     } catch (error) {
@@ -88,7 +90,7 @@ export const MineService = {
 
       const stats: MineStats = {
         totalMines: mines.length,
-        activeMines: mines.filter(mine => mine.status === 'active').length,
+        activeMines: mines.filter(mine => mine.estado === 'activa').length,
         totalGateways: 0,
         totalSensorNodes: 0,
         totalSensors: 0,

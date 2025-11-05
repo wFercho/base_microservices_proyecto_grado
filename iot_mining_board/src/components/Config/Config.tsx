@@ -33,11 +33,9 @@ import { MineZone } from '../../interfaces/Mines';
 import { MineService } from '../../services/MinesServices';
 import { useNavigate } from 'react-router-dom';
 import { AlertRulesConfiguration } from './AlertRulesConfiguration';
-
+import {  MoreVertical, Navigation, Phone } from 'lucide-react';
 // Tipos TypeScript para Configuración
 type SensorType = 'Temperatura' | 'Humedad' | 'PM2.5' | 'PM10' | 'CO2' | 'Presión' | 'Luminosidad' | 'Ruido';
-type ZoneType = 'tunel' | 'extraction' | 'bocamina';
-type AlertLevel = 'info' | 'warning' | 'critical';
 type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
 
 
@@ -75,12 +73,12 @@ const SensorsConfiguration: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editingSensor, setEditingSensor] = useState<Sensor | null>(null);
   const [showForm, setShowForm] = useState<boolean>(false);
-  
+
   // Estados para paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const navigate= useNavigate();
+  const navigate = useNavigate();
 
   const sensorTypeIcons: Record<SensorType, IconComponent> = {
     'Temperatura': Thermometer,
@@ -104,7 +102,7 @@ const SensorsConfiguration: React.FC = () => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(totalPages);
     }
-  }, [sensors, itemsPerPage, totalPages,currentPage]);
+  }, [sensors, itemsPerPage, totalPages, currentPage]);
 
   const loadSensorsData = async () => {
     try {
@@ -192,19 +190,19 @@ const SensorsConfiguration: React.FC = () => {
   const getPageNumbers = (): number[] => {
     const pages: number[] = [];
     const maxVisiblePages = 5;
-    
+
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
+
     // Ajustar startPage si endPage está en el límite
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-    
+
     for (let i = startPage; i <= endPage; i++) {
       pages.push(i);
     }
-    
+
     return pages;
   };
 
@@ -225,7 +223,7 @@ const SensorsConfiguration: React.FC = () => {
           Configuración de Sensores ({sensors.length} sensores)
         </h2>
         <button
-          onClick={()=>navigate("/sensores")}
+          onClick={() => navigate("/sensores")}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700 transition-colors"
         >
           <Plus size={20} className="mr-2" />
@@ -337,17 +335,16 @@ const SensorsConfiguration: React.FC = () => {
               <div className="text-sm text-gray-600">
                 Página {currentPage} de {totalPages}
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 {/* Botón Primera Página */}
                 <button
                   onClick={() => handlePageChange(1)}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1 rounded-md text-sm ${
-                    currentPage === 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                  }`}
+                  className={`px-3 py-1 rounded-md text-sm ${currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                    }`}
                 >
                   «
                 </button>
@@ -356,11 +353,10 @@ const SensorsConfiguration: React.FC = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1 rounded-md text-sm ${
-                    currentPage === 1
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                  }`}
+                  className={`px-3 py-1 rounded-md text-sm ${currentPage === 1
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                    }`}
                 >
                   ‹
                 </button>
@@ -370,11 +366,10 @@ const SensorsConfiguration: React.FC = () => {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`px-3 py-1 rounded-md text-sm ${
-                      currentPage === page
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                    }`}
+                    className={`px-3 py-1 rounded-md text-sm ${currentPage === page
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                      }`}
                   >
                     {page}
                   </button>
@@ -384,11 +379,10 @@ const SensorsConfiguration: React.FC = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1 rounded-md text-sm ${
-                    currentPage === totalPages
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                  }`}
+                  className={`px-3 py-1 rounded-md text-sm ${currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                    }`}
                 >
                   ›
                 </button>
@@ -397,11 +391,10 @@ const SensorsConfiguration: React.FC = () => {
                 <button
                   onClick={() => handlePageChange(totalPages)}
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1 rounded-md text-sm ${
-                    currentPage === totalPages
-                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
-                  }`}
+                  className={`px-3 py-1 rounded-md text-sm ${currentPage === totalPages
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-300'
+                    }`}
                 >
                   »
                 </button>
@@ -624,7 +617,7 @@ const GatewaysConfiguration: React.FC = () => {
           Configuración de Gateways ({gateways.length} gateways)
         </h2>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700 transition-colors"
-        onClick={()=> navigate("/minas")}>
+          onClick={() => navigate("/minas")}>
           <Plus size={20} className="mr-2" />
           Agregar Gateway
         </button>
@@ -677,7 +670,7 @@ const GatewaysConfiguration: React.FC = () => {
               </div>
             </div>
 
-           
+
           </div>
         ))}
       </div>
@@ -706,29 +699,30 @@ const ZonesConfiguration: React.FC = () => {
     }
   };
 
-  const getZoneType = (mineType: string): ZoneType => {
-    if (mineType?.includes('underground') || mineType?.includes('subterránea')) return 'tunel';
-    if (mineType?.includes('open') || mineType?.includes('extracción')) return 'extraction';
-    return 'bocamina';
+  // Funciones auxiliares
+  const getTotalGateways = (mine: MineZone): number => {
+    return mine.iot_gateways?.length || 0;
   };
 
-  const getTotalGateways = (mine: MineZone): number => {
-    return mine.iot_gateways.length;
+  const getTotalSensorNodes = (mine: MineZone): number => {
+    return mine.iot_gateways?.reduce((total, gateway) =>
+      total + (gateway.sensor_nodes?.length || 0), 0) || 0;
   };
 
   const getTotalSensors = (mine: MineZone): number => {
-    return mine.iot_gateways.reduce((total, gateway) => {
-      return total + gateway.sensor_nodes.reduce((nodeTotal, node) => {
-        return nodeTotal + (node.sensors?.length || 0);
-      }, 0);
-    }, 0);
+    return mine.iot_gateways?.reduce((totalGateways, gateway) =>
+      totalGateways + (gateway.sensor_nodes?.reduce((totalNodes, node) =>
+        totalNodes + (node.sensors?.length || 0), 0) || 0), 0) || 0;
   };
 
-  const getSafetyLevel = (mine: MineZone): AlertLevel => {
+  const getSafetyLevel = (mine: MineZone): string => {
     const totalSensors = getTotalSensors(mine);
-    if (totalSensors === 0) return 'critical';
-    if (totalSensors < 10) return 'warning';
-    return 'info';
+    const totalGateways = getTotalGateways(mine);
+
+    if (totalGateways === 0 || totalSensors === 0) return 'baja';
+    if (totalSensors >= 10 && totalGateways >= 2) return 'alta';
+    if (totalSensors >= 5 && totalGateways >= 1) return 'media';
+    return 'baja';
   };
 
   if (loading) {
@@ -739,6 +733,7 @@ const ZonesConfiguration: React.FC = () => {
     );
   }
 
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -746,7 +741,7 @@ const ZonesConfiguration: React.FC = () => {
           Configuración de Zonas ({mines.length} minas)
         </h2>
         <button className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700 transition-colors"
-        onClick={()=> navigate("/minas")}>
+          onClick={() => navigate("/minas")}>
           <Plus size={20} className="mr-2" />
           Agregar Zona
         </button>
@@ -754,63 +749,115 @@ const ZonesConfiguration: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {mines.map((mine) => (
-          <div key={mine.id} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+          <div key={mine.id} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500 hover:shadow-lg transition-shadow duration-300">
+            {/* Header con información principal */}
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center">
                 <MapPin className="text-blue-600 mr-3" size={20} />
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{mine.name}</h3>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getZoneType(mine.mine_type || '') === 'tunel' ? 'bg-blue-100 text-blue-800' :
-                    getZoneType(mine.mine_type || '') === 'extraction' ? 'bg-orange-100 text-orange-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>
-                    {getZoneType(mine.mine_type || '')}
-                  </span>
+                  <h3 className="text-lg font-semibold text-gray-900">{mine.nombre}</h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${mine.estado === 'activa' ? 'bg-green-100 text-green-800' :
+                      mine.estado === 'inactiva' ? 'bg-red-100 text-red-800' :
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
+                      {mine.estado === 'activa' ? 'Activa' :
+                        mine.estado === 'inactiva' ? 'Inactiva' :
+                          'En Mantenimiento'}
+                    </span>
+                    {mine.empresa && (
+                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        {mine.empresa}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-              <div className={`px-2 py-1 rounded-full text-xs font-medium ${mine.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                }`}>
-                {mine.status === 'active' ? 'Activa' : 'Inactiva'}
+              <MoreVertical
+                className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                size={18}
+              />
+            </div>
+
+            {/* Información de ubicación */}
+            <div className="space-y-3 mb-4">
+              {mine.ubicacion && (
+                <div className="flex items-start">
+                  <Navigation className="text-gray-400 mr-2 mt-0.5" size={16} />
+                  <span className="text-sm text-gray-600">{mine.ubicacion}</span>
+                </div>
+              )}
+
+              {mine.provincia && (
+                <div className="flex items-center text-sm text-gray-500">
+                  <span className="mr-1">Provincia:</span>
+                  <span className="font-medium">{mine.provincia}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Estadísticas de dispositivos */}
+            <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Dispositivos IoT</h4>
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <div className="text-lg font-bold text-blue-600">{getTotalGateways(mine)}</div>
+                  <div className="text-xs text-gray-500">Gateways</div>
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-green-600">{getTotalSensorNodes(mine)}</div>
+                  <div className="text-xs text-gray-500">Nodos</div>
+                </div>
+                <div>
+                  <div className="text-lg font-bold text-purple-600">{getTotalSensors(mine)}</div>
+                  <div className="text-xs text-gray-500">Sensores</div>
+                </div>
               </div>
             </div>
 
-            <p className="text-sm text-gray-600 mb-4">{mine.description}</p>
-
+            {/* Información de contacto y coordenadas */}
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Ubicación:</span>
-                <span className="font-medium">{mine.location}</span>
-              </div>
+              {mine.contacto && (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600 flex items-center">
+                    <Phone className="mr-1" size={14} />
+                    Contacto:
+                  </span>
+                  <span className="font-medium text-blue-600">{mine.contacto}</span>
+                </div>
+              )}
 
-              <div className="flex justify-between">
-                <span className="text-gray-600">Gateways:</span>
-                <span className="font-medium">{getTotalGateways(mine)}</span>
-              </div>
+              {mine.direccion && (
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Dirección:</span>
+                  <span className="font-medium text-right max-w-[150px] truncate" title={mine.direccion}>
+                    {mine.direccion}
+                  </span>
+                </div>
+              )}
 
-              <div className="flex justify-between">
-                <span className="text-gray-600">Sensores:</span>
-                <span className="font-medium">{getTotalSensors(mine)}</span>
-              </div>
+              {(mine.latitud && mine.longitud) && (
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Coordenadas:</span>
+                  <span className="font-medium text-xs">
+                    {mine.latitud}, {mine.longitud}
+                  </span>
+                </div>
+              )}
 
-              <div className="flex justify-between">
-                <span className="text-gray-600">Nivel Seguridad:</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSafetyLevel(mine) === 'info' ? 'bg-blue-100 text-blue-800' :
-                  getSafetyLevel(mine) === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+              {/* Nivel de seguridad */}
+              <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                <span className="text-gray-600">Seguridad:</span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getSafetyLevel(mine) === 'alta' ? 'bg-green-100 text-green-800' :
+                  getSafetyLevel(mine) === 'media' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-red-100 text-red-800'
                   }`}>
                   {getSafetyLevel(mine).toUpperCase()}
                 </span>
               </div>
-
-              <div className="flex justify-between">
-                <span className="text-gray-600">Coordenadas:</span>
-                <span className="font-medium text-xs">
-                  {mine.coordinates || 'No especificadas'}
-                </span>
-              </div>
             </div>
 
-           
+         
           </div>
         ))}
       </div>
@@ -1113,7 +1160,7 @@ export const ConfigurationModule: React.FC = () => {
               Sistema monitorizando {systemStats.totalSensors} sensores, {systemStats.totalGateways} gateways, y {systemStats.totalMines} minas
             </p>
           </div>
-      {/*     <div className="flex space-x-3">
+          {/*     <div className="flex space-x-3">
             <button
               onClick={handleRefresh}
               className="bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-gray-700 transition-colors"

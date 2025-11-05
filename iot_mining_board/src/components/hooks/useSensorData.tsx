@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/exhaustive-deps */
 // hooks/useSensorData.ts
 import { useState, useCallback, useRef, useEffect } from 'react';
@@ -186,73 +187,27 @@ export const useSensorData = (): UseSensorDataReturn => {
 
     const handleWebSocketMessage = useCallback((data: WebSocketMessage): void => {
         try {
-            // console.log('📨 Mensaje WebSocket recibido:', data);
-
             let sensorDataItem: SensorData;
-            let rawData: any;
 
             // Parsear mensaje
-            if (typeof data === 'object' && 'sensor_id' in data) {
-                // Es el formato directo que recibimos
-                rawData = data;
+            if (typeof data === 'object' && 'id' in data && 'status' in data) {
+                sensorDataItem = data as unknown as SensorData;
             } else if (typeof data.content === 'string') {
-                try {
-                    rawData = JSON.parse(data.content);
-                } catch (parseError) {
-                    console.log('❌ Error parseando content:', parseError);
-                    return;
-                }
+                sensorDataItem = JSON.parse(data.content);
             } else if (typeof data === 'object' && data.content && typeof data.content === 'object') {
-                rawData = data.content;
+                sensorDataItem = data.content as unknown as SensorData;
             } else {
-                // Manejar mensajes de conexión y suscripción
-                if (data.type === 'connection' || data.type === 'subscription') {
-                    // console.log('📡 Mensaje del servidor:', data);
-                    if (data.subscriptions) {
-                        currentSubscriptionsRef.current = data.subscriptions;
-                    }
-                    return;
-                }
-                console.log('❌ Mensaje no reconocido:', data);
                 return;
             }
 
-            // Validar estructura básica del mensaje recibido
-            if (!rawData || typeof rawData.sensor_id === 'undefined') {
-                console.log('❌ Datos de sensor inválidos - falta sensor_id:', rawData);
+            // Validar estructura
+            if (!sensorDataItem ||
+                typeof sensorDataItem.id !== 'string' ||
+                typeof sensorDataItem.type !== 'string' ||
+                typeof sensorDataItem.value !== 'number') {
                 return;
             }
 
-            // Mapear la estructura recibida a la interfaz SensorData
-            sensorDataItem = {
-                // Campos requeridos
-                id: rawData.sensor_id?.toString() || `sensor_${rawData.sensor_id}`,
-                type: rawData.variable || 'unknown',
-                value: typeof rawData.value === 'number' ? rawData.value : 0,
-                unit: rawData.unit || '',
-                status: mapReceivedStatus(rawData.status),
-                timestamp: rawData.timestamp || new Date().toISOString(),
-                node_id: rawData.node_id || 'unknown',
-
-                // Campos de metadata mapeados
-                manufacturer: rawData.metadata?.brand || 'Unknown',
-                model: rawData.metadata?.reference || 'Unknown',
-
-                // Campos opcionales con valores por defecto
-                latitude: rawData.metadata?.latitude || 0,
-                longitude: rawData.metadata?.longitude || 0,
-
-                // Conservar metadata completo por si se necesita
-                metadata: rawData.metadata
-            };
-
-            // console.log('✅ Datos de sensor mapeados:', sensorDataItem);
-
-            // Validar estructura final
-            if (!sensorDataItem.id || !sensorDataItem.type || typeof sensorDataItem.value !== 'number') {
-                console.log('❌ Datos de sensor mapeados inválidos:', sensorDataItem);
-                return;
-            }
 
             // 1. Guardar datos crudos
             setAllSensorData(prev => {
@@ -269,6 +224,7 @@ export const useSensorData = (): UseSensorDataReturn => {
                     return [sensorDataItem, ...prev].slice(0, MAX_SENSOR_DATA);
                 }
             });
+
 
             // 2. Procesar para alertas
             processSensorDataForAlerts(sensorDataItem);

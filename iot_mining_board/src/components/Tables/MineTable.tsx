@@ -16,7 +16,6 @@ export const MineTable = ({ mines, onEdit, onView, onDelete, totalPages, current
     const [hoveredRow, setHoveredRow] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
-
     const handleDelete = (id: string) => {
         setDeletingId(id);
         setTimeout(() => {
@@ -26,36 +25,29 @@ export const MineTable = ({ mines, onEdit, onView, onDelete, totalPages, current
     };
 
     const getStatusColor = (status: string) => {
-        return status === 'active'
-            ? 'bg-green-100 text-green-800'
-            : 'bg-red-100 text-red-800';
+        const statusColors: { [key: string]: string } = {
+            activa: 'bg-green-100 text-green-800',
+            inactiva: 'bg-red-100 text-red-800',
+            mantenimiento: 'bg-yellow-100 text-yellow-800'
+        };
+        return statusColors[status] || 'bg-gray-100 text-gray-800';
     };
 
-    const getMineTypeColor = (type: string) => {
-        const colors: { [key: string]: string } = {
-            underground: 'bg-purple-100 text-purple-800',
-            open_pit: 'bg-orange-100 text-orange-800',
-            hybrid: 'bg-blue-100 text-blue-800'
+    const getStatusLabel = (status: string) => {
+        const statusLabels: { [key: string]: string } = {
+            activa: 'Activa',
+            inactiva: 'Inactiva',
+            mantenimiento: 'Mantenimiento'
         };
-        return colors[type] || 'bg-gray-100 text-gray-800';
+        return statusLabels[status] || status;
     };
 
     const countTotalSensors = (mine: MineZone): number => {
-        return mine.iot_gateways.reduce((total, gateway) => {
-            return total + gateway.sensor_nodes.reduce((nodeTotal, node) => {
+        return mine.iot_gateways?.reduce((total, gateway) => {
+            return total + (gateway.sensor_nodes?.reduce((nodeTotal, node) => {
                 return nodeTotal + (node.sensors?.length || 0);
-            }, 0);
-        }, 0);
-    };
-
-    const getMineTypeLabel = (type: string) => {
-        const labels: { [key: string]: string } = {
-            underground: 'Subterránea',
-            open_pit: 'Cielo Abierto',
-            hybrid: 'Híbrida',
-            processing: 'Procesamiento'
-        };
-        return labels[type] || type;
+            }, 0) || 0);
+        }, 0) || 0;
     };
 
     return (
@@ -82,7 +74,12 @@ export const MineTable = ({ mines, onEdit, onView, onDelete, totalPages, current
                             </th>
                             <th className="px-6 py-3 text-center">
                                 <div className="flex justify-center items-center space-x-1">
-                                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</span>
+                                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Provincia</span>
+                                </div>
+                            </th>
+                            <th className="px-6 py-3 text-center">
+                                <div className="flex justify-center items-center space-x-1">
+                                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wider">Empresa</span>
                                 </div>
                             </th>
                             <th className="px-6 py-3 text-center">
@@ -112,24 +109,33 @@ export const MineTable = ({ mines, onEdit, onView, onDelete, totalPages, current
                             >
                                 <td className="px-6 py-4 text-center">
                                     <div className="flex flex-col items-center justify-center">
-                                        <div className="text-sm font-medium text-gray-900">{mine.name}</div>
-                                        <div className="text-xs text-gray-500">{mine.description}</div>
+                                        <div className="text-sm font-medium text-gray-900">{mine.nombre}</div>
+                                        <div className="text-xs text-gray-500">
+                                            {mine.direccion || 'Sin dirección'}
+                                        </div>
                                     </div>
                                 </td>
                                 <td className="px-6 py-4 text-center">
-                                    <div className="text-sm text-gray-900">{mine.location || 'N/A'}</div>
+                                    <div className="text-sm text-gray-900">{mine.ubicacion || 'N/A'}</div>
+                                    {mine.latitud && mine.longitud && (
+                                        <div className="text-xs text-gray-500">
+                                            {mine.latitud}, {mine.longitud}
+                                        </div>
+                                    )}
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                    <div className="text-sm text-gray-900">{mine.provincia || 'N/A'}</div>
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                    <div className="text-sm text-gray-900">{mine.empresa || 'N/A'}</div>
+                                    {mine.contacto && (
+                                        <div className="text-xs text-gray-500">{mine.contacto}</div>
+                                    )}
                                 </td>
                                 <td className="px-6 py-4 text-center">
                                     <div className="flex justify-center">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getMineTypeColor(mine.mine_type || '')}`}>
-                                            {getMineTypeLabel(mine.mine_type || 'N/A')}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-center">
-                                    <div className="flex justify-center">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(mine.status)}`}>
-                                            {mine.status === 'active' ? 'Activa' : 'Inactiva'}
+                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(mine.estado)}`}>
+                                            {getStatusLabel(mine.estado)}
                                         </span>
                                     </div>
                                 </td>
@@ -138,13 +144,13 @@ export const MineTable = ({ mines, onEdit, onView, onDelete, totalPages, current
                                         <div className="flex items-center space-x-1">
                                             <span className="font-medium">Gateways:</span>
                                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                {mine.iot_gateways.length}
+                                                {mine.iot_gateways?.length || 0}
                                             </span>
                                         </div>
                                         <div className="flex items-center space-x-1">
                                             <span className="font-medium">Nodos:</span>
                                             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                                {mine.iot_gateways.reduce((total, gw) => total + gw.sensor_nodes.length, 0)}
+                                                {mine.iot_gateways?.reduce((total, gw) => total + (gw.sensor_nodes?.length || 0), 0) || 0}
                                             </span>
                                         </div>
                                         <div className="flex items-center space-x-1">

@@ -9,7 +9,8 @@ import {
     ChevronDown,
     ChevronRight,
     Cpu,
-    Radio
+    Radio,
+    Mail,
 } from 'lucide-react';
 import { IoTGateway, MineZone } from '../../interfaces/Mines';
 import { SensorNode } from '../../interfaces/Nodes';
@@ -49,11 +50,11 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
     };
 
     const countTotalSensors = (gateway: IoTGateway): number => {
-        return gateway.sensor_nodes.reduce((total, node) => total + (node.sensors?.length ?? 0), 0);
+        return gateway.sensor_nodes?.reduce((total, node) => total + (node.sensors?.length ?? 0), 0) || 0;
     };
 
     const countTotalMineSensors = (): number => {
-        return mine.iot_gateways.reduce((total, gateway) => total + countTotalSensors(gateway), 0);
+        return mine.iot_gateways?.reduce((total, gateway) => total + countTotalSensors(gateway), 0) || 0;
     };
 
     const handleSensorClick = (sensor: Sensor) => {
@@ -64,6 +65,24 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
     const handleCloseSensorModal = () => {
         setIsSensorModalOpen(false);
         setSelectedSensor(null);
+    };
+
+    const getStatusColor = (status: string) => {
+        const statusColors: { [key: string]: string } = {
+            activa: 'bg-green-100 text-green-800',
+            inactiva: 'bg-red-100 text-red-800',
+            mantenimiento: 'bg-yellow-100 text-yellow-800'
+        };
+        return statusColors[status] || 'bg-gray-100 text-gray-800';
+    };
+
+    const getStatusLabel = (status: string) => {
+        const statusLabels: { [key: string]: string } = {
+            activa: 'Activa',
+            inactiva: 'Inactiva',
+            mantenimiento: 'Mantenimiento'
+        };
+        return statusLabels[status] || status;
     };
 
     const GatewayCard: React.FC<{ gateway: IoTGateway }> = ({ gateway }) => {
@@ -90,7 +109,7 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
                         <div className="flex items-center space-x-3">
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                 <Cpu className="w-3 h-3 mr-1" />
-                                {gateway.sensor_nodes.length} nodos
+                                {gateway.sensor_nodes?.length || 0} nodos
                             </span>
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 <Radio className="w-3 h-3 mr-1" />
@@ -112,7 +131,7 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
                 {isExpanded && (
                     <div className="border-t border-gray-200 bg-gray-50 p-5">
                         <div className="space-y-3">
-                            {gateway.sensor_nodes.map((node) => (
+                            {gateway.sensor_nodes?.map((node) => (
                                 <SensorNodeCard
                                     key={node.id}
                                     node={node}
@@ -154,7 +173,7 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
                     <div className="flex items-center space-x-3">
                         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             <Radio className="w-3 h-3 mr-1" />
-                            {node.sensors?.length ?? 0} sensores
+                            {node.sensors?.length || 0} sensores
                         </span>
                         <div className={`p-2 rounded-full transition-colors duration-200 ${
                             isExpanded ? 'bg-orange-200' : 'bg-gray-100'
@@ -226,16 +245,6 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
         );
     };
 
-    const getMineTypeLabel = (type: string) => {
-        const labels: { [key: string]: string } = {
-            underground: 'Subterránea',
-            open_pit: 'Cielo Abierto',
-            mine: 'Mina',
-            processing: 'Procesamiento'
-        };
-        return labels[type] || type;
-    };
-
     return (
         <div className="space-y-6 p-6">
             {/* Header */}
@@ -264,7 +273,7 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
                             <Building className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-white">{mine.name}</h1>
+                            <h1 className="text-3xl font-bold text-white">{mine.nombre}</h1>
                             <p className="text-indigo-100 text-sm mt-1">Información detallada de la zona minera</p>
                         </div>
                     </div>
@@ -280,31 +289,30 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
                                 </h3>
                                 <div className="space-y-4 bg-gray-50 rounded-lg p-5">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-500 mb-1">Descripción</label>
-                                        <p className="text-gray-900">{mine.description}</p>
+                                        <label className="block text-sm font-medium text-gray-500 mb-1">Dirección</label>
+                                        <p className="text-gray-900">{mine.direccion || 'Sin dirección especificada'}</p>
                                     </div>
                                     <div className="flex items-start space-x-2">
                                         <MapPin className="w-5 h-5 text-indigo-600 mt-1" />
                                         <div className="flex-1">
                                             <label className="block text-sm font-medium text-gray-500 mb-1">Ubicación</label>
-                                            <p className="text-gray-900">{mine.location}</p>
+                                            <p className="text-gray-900">{mine.ubicacion || 'N/A'}</p>
+                                            {mine.latitud && mine.longitud && (
+                                                <p className="text-sm text-gray-600 mt-1">
+                                                    Coordenadas: {mine.latitud}, {mine.longitud}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-500 mb-1">Tipo de Mina</label>
-                                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800">
-                                                {getMineTypeLabel(mine.mine_type ?? "")}
-                                            </span>
+                                            <label className="block text-sm font-medium text-gray-500 mb-1">Provincia</label>
+                                            <p className="text-gray-900 font-semibold">{mine.provincia || 'N/A'}</p>
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-gray-500 mb-1">Estado</label>
-                                            <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${
-                                                mine.status === 'active'
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : 'bg-red-100 text-red-800'
-                                            }`}>
-                                                {mine.status === 'active' ? 'Activa' : 'Inactiva'}
+                                            <span className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(mine.estado)}`}>
+                                                {getStatusLabel(mine.estado)}
                                             </span>
                                         </div>
                                     </div>
@@ -316,28 +324,44 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
                             <div>
                                 <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
                                     <div className="w-1 h-6 bg-blue-600 rounded-full mr-3"></div>
-                                    Especificaciones Técnicas
+                                    Información de Contacto
                                 </h3>
                                 <div className="space-y-4 bg-gray-50 rounded-lg p-5">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-500 mb-1">Coordenadas</label>
-                                        <p className="text-gray-900 font-mono text-sm bg-white px-3 py-2 rounded border border-gray-200">
-                                            {mine.coordinates}
-                                        </p>
+                                        <label className="block text-sm font-medium text-gray-500 mb-1">Empresa</label>
+                                        <p className="text-gray-900 font-semibold text-lg">{mine.empresa || 'No especificada'}</p>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-500 mb-1">Profundidad</label>
-                                            <p className="text-gray-900 font-semibold">{mine.depth}</p>
+                                    {mine.contacto && (
+                                        <div className="space-y-3">
+                                            <div className="flex items-center space-x-3">
+                                                <div className="p-2 rounded-full bg-green-100">
+                                                    <Mail className="w-4 h-4 text-green-600" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-gray-500 mb-1">Contacto</label>
+                                                    <p className="text-gray-900">{mine.contacto}</p>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-500 mb-1">Área</label>
-                                            <p className="text-gray-900 font-semibold">{mine.area}</p>
+                                    )}
+                                    <div className="pt-3 border-t border-gray-200">
+                                        <label className="block text-sm font-medium text-gray-500 mb-2">Resumen de Dispositivos</label>
+                                        <div className="grid grid-cols-3 gap-4 text-center">
+                                            <div className="bg-white rounded-lg p-3 border border-gray-200">
+                                                <div className="text-2xl font-bold text-purple-600">{mine.iot_gateways?.length || 0}</div>
+                                                <div className="text-xs text-gray-600">Gateways</div>
+                                            </div>
+                                            <div className="bg-white rounded-lg p-3 border border-gray-200">
+                                                <div className="text-2xl font-bold text-blue-600">
+                                                    {mine.iot_gateways?.reduce((total, gw) => total + (gw.sensor_nodes?.length || 0), 0) || 0}
+                                                </div>
+                                                <div className="text-xs text-gray-600">Nodos</div>
+                                            </div>
+                                            <div className="bg-white rounded-lg p-3 border border-gray-200">
+                                                <div className="text-2xl font-bold text-green-600">{countTotalMineSensors()}</div>
+                                                <div className="text-xs text-gray-600">Sensores</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-500 mb-1">Tipo de Zona</label>
-                                        <p className="text-gray-900">{mine.zone_type}</p>
                                     </div>
                                 </div>
                             </div>
@@ -357,7 +381,7 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
                             <div>
                                 <h2 className="text-xl font-bold text-white">Dispositivos IoT</h2>
                                 <p className="text-purple-100 text-sm">
-                                    {mine.iot_gateways.length} gateways • {countTotalMineSensors()} sensores totales
+                                    {mine.iot_gateways?.length || 0} gateways • {countTotalMineSensors()} sensores totales
                                 </p>
                             </div>
                         </div>
@@ -365,7 +389,7 @@ export const MineDetailView: React.FC<MineDetailViewProps> = ({ mine, onBack, on
                 </div>
                 <div className="p-6">
                     <div className="space-y-4">
-                        {mine.iot_gateways.length > 0 ? (
+                        {mine.iot_gateways && mine.iot_gateways.length > 0 ? (
                             mine.iot_gateways.map((gateway) => (
                                 <GatewayCard key={gateway.id} gateway={gateway} />
                             ))

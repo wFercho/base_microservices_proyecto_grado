@@ -169,7 +169,7 @@ export const MiningDashboard: React.FC = () => {
           alerts.push({
             type: 'critical',
             sensor: `Sensor ${sensor.variable} - ${sensor.id_node}`,
-            zone: `${node.zone_name || 'Zona Sin Nombre'} - ${mine.name}`,
+            zone: `${node.zone_name || 'Zona Sin Nombre'} - ${mine.nombre}`,
             value: `${((sensor.min_medicion || 0) + (sensor.max_medicion || 100)) / 2} ${sensor.unidad_medicion || ''}`,
             time: currentTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
             message: `Nivel elevado de ${sensor.variable} detectado. Verificar condiciones.`
@@ -195,7 +195,7 @@ export const MiningDashboard: React.FC = () => {
         alerts.push({
           type: 'warning',
           sensor: `Gateway - ${randomNode.id}`,
-          zone: `${randomNode.zone_name || 'Zona Sin Nombre'} - ${mine?.name || 'Mina Sin Asignar'}`,
+          zone: `${randomNode.zone_name || 'Zona Sin Nombre'} - ${mine?.nombre || 'Mina Sin Asignar'}`,
           value: 'Latencia elevada',
           time: currentTime.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
           message: 'Latencia de comunicación por encima del umbral permitido.'
