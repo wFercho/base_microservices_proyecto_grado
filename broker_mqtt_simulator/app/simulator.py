@@ -1,18 +1,27 @@
 import asyncio
 import json
 import random
-from datetime import datetime
+import uuid
+from datetime import datetime, timedelta
+from collections import defaultdict
+import sys
 import asyncpg
 import paho.mqtt.client as mqtt
-from sensors_config import SENSOR_TYPES
+
+# Importar configuraciones
+from sensors_config import CERTIFICATIONS, INSTALL_TYPES, MANUFACTURERS, PROTOCOLS, SENSOR_TYPES
+from email_service import EmailNotificationService
+from config_email import EMAIL_CONFIG, ALERT_RECIPIENTS, ALERT_SETTINGS, validate_config
 
 # Configuración MQTT
 BROKER = "broker_mosquitto"
 PORT = 1883
+TOPIC = "iot/sensor/data"
 USERNAME = "Ricardo"
 PASSWORD = "1234"
+QOS = 1
 
-# Configuración PostgreSQL (ajusta según tu entorno)
+# Configuración PostgreSQL
 DB_CONFIG = {
     "host": "iot_devices_postgres",
     "port": 5432,
@@ -21,20 +30,96 @@ DB_CONFIG = {
     "password": "iot_password"
 }
 
-class SensorSimulator:
+class SensorState:
+    """Mantiene el estado de cada sensor para generar datos realistas"""
+    def __init__(self, sensor_type, params):
+        self.sensor_type = sensor_type
+        self.params = params
+        self.current_value = random.uniform(*params["typical_range"])
+        self.last_update = datetime.utcnow()
+        self.trend = random.choice(["stable", "increasing", "decreasing"])
+        self.anomaly_chance = 0.03
+        
+    def update_value(self):
+        """Actualiza el valor del sensor con tendencias realistas"""
+        if random.random() < 0.1:
+            self.trend = random.choice(["stable", "increasing", "decreasing"])
+        
+        typical_min, typical_max = self.params["typical_range"]
+        change_rate = (typical_max - typical_min) * 0.05
+        
+        if self.trend == "increasing":
+            change = random.uniform(0, change_rate)
+        elif self.trend == "decreasing":
+            change = random.uniform(-change_rate, 0)
+        else:
+            change = random.uniform(-change_rate * 0.3, change_rate * 0.3)
+        
+        noise = random.gauss(0, change_rate * 0.1)
+        self.current_value += change + noise
+        
+        if random.random() < self.anomaly_chance:
+            spike = random.uniform(change_rate * 2, change_rate * 5)
+            self.current_value += spike if random.random() > 0.5 else -spike
+        
+        self.current_value = max(self.params["min"], 
+                                min(self.params["max"], self.current_value))
+        
+        self.last_update = datetime.utcnow()
+        return round(self.current_value, 2)
+    
+    def get_status(self):
+        """Determina el estado basado en umbrales de seguridad"""
+        value = self.current_value
+        params = self.params
+        
+        if self.sensor_type == "O2":
+            if value < params.get("danger_threshold", 0):
+                return "DANGER"
+            elif value < params.get("warning_threshold", 0):
+                return "WARNING"
+            elif params.get("safe_min", 0) <= value <= params.get("safe_max", 100):
+                return "OK"
+            else:
+                return "WARNING"
+        
+        if self.sensor_type in ["Humedad", "Iluminación", "pH_Agua"]:
+            safe_min = params.get("safe_min", 0)
+            safe_max = params.get("safe_max", 100)
+            
+            if value < safe_min or value > params.get("danger_threshold", safe_max):
+                return "DANGER"
+            elif value < params.get("warning_threshold_low", safe_min) or value > params.get("warning_threshold_high", safe_max):
+                return "WARNING"
+            else:
+                return "OK"
+        
+        if value >= params.get("danger_threshold", float('inf')):
+            return "DANGER"
+        elif value >= params.get("warning_threshold", float('inf')):
+            return "WARNING"
+        else:
+            return "OK"
+
+class UnifiedSensorSimulator:
     def __init__(self):
         self.mqtt_client = None
         self.db_pool = None
         self.sensors_cache = []
+        self.sensor_states = {}
+        self.email_service = None
+        self.alert_cooldowns = defaultdict(lambda: datetime.min)
+        self.email_stats = defaultdict(int)
         
     async def init_db(self):
         """Inicializa la conexión a PostgreSQL"""
         try:
             self.db_pool = await asyncpg.create_pool(**DB_CONFIG)
             print("✅ Conexión a PostgreSQL establecida")
+            return True
         except Exception as e:
             print(f"❌ Error conectando a PostgreSQL: {e}")
-            raise
+            return False
     
     async def load_sensors(self):
         """Carga sensores desde la base de datos"""
@@ -51,7 +136,7 @@ class SensorSimulator:
                     s.min_medicion,
                     n.zone_name,
                     n.zone_category,
-                    g.description
+                    g.mine_zone_id AS associated_mine
                 FROM sensores s
                 LEFT JOIN nodos_sensores n ON s.id_node = n.id
                 LEFT JOIN iot_gateways g ON n.id_iot_gateway = g.id
@@ -74,21 +159,31 @@ class SensorSimulator:
                     'min_value': float(row['min_medicion']) if row['min_medicion'] else None,
                     'zone_name': row['zone_name'],
                     'zone_category': row['zone_category'],
-                    'mine': row['description']
+                    'mine': row['associated_mine']
                 }
                 self.sensors_cache.append(sensor_data)
             
-            print(f"✅ {len(self.sensors_cache)} sensores cargados desde BD")
             return len(self.sensors_cache) > 0
             
         except Exception as e:
             print(f"❌ Error cargando sensores: {e}")
             return False
-    
+
     def init_mqtt(self):
-        """Inicializa cliente MQTT"""
+        """Configura cliente MQTT con callbacks"""
         self.mqtt_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self.mqtt_client.username_pw_set(USERNAME, PASSWORD)
+        
+        def on_connect(client, userdata, flags, rc, properties=None):
+            status = "✅ Conectado" if rc == 0 else f"❌ Error de conexión ({rc})"
+
+        def on_disconnect(client, userdata, rc, properties=None):
+            if rc != 0:
+                print(f"⚠️ Desconexión inesperada (código {rc}). Reconectando...")
+                client.reconnect()
+
+        self.mqtt_client.on_connect = on_connect
+        self.mqtt_client.on_disconnect = on_disconnect
         
         try:
             self.mqtt_client.connect(BROKER, PORT, 60)
@@ -97,130 +192,290 @@ class SensorSimulator:
         except Exception as e:
             print(f"❌ Error conectando a MQTT: {e}")
             raise
-    
-    def generate_sensor_value(self, sensor):
-        """Genera un valor simulado basado en el tipo de sensor"""
-        variable = sensor['variable']
+
+    def init_email_service(self):
+        """Inicializa el servicio de email"""
+        try:
+            self.email_service = EmailNotificationService(**EMAIL_CONFIG)
+            print("✅ Servicio de email inicializado")
+        except Exception as e:
+            print(f"⚠️ Error inicializando servicio de email: {e}")
+
+    def get_sensor_state(self, node_id, sensor_type):
+        """Obtiene o crea el estado de un sensor"""
+        key = f"{node_id}_{sensor_type}"
+        if key not in self.sensor_states:
+            params = SENSOR_TYPES.get(sensor_type, {
+                "typical_range": [0, 100],
+                "min": 0,
+                "max": 100,
+                "unit": "units"
+            })
+            self.sensor_states[key] = SensorState(sensor_type, params)
+        return self.sensor_states[key]
+
+    def should_send_alert(self, sensor_key, status):
+        """Determina si se debe enviar una alerta según cooldown"""
+        if status == "OK":
+            return False
         
-        # Buscar configuración del sensor en sensors_config.py
-        sensor_config = SENSOR_TYPES.get(variable)
+        now = datetime.now()
+        last_alert = self.alert_cooldowns[sensor_key]
+        cooldown = timedelta(minutes=ALERT_SETTINGS["cooldown_minutes"])
         
-        if sensor_config:
-            # Usar rangos típicos con variación gaussiana
-            typical_min, typical_max = sensor_config['typical_range']
-            mean = (typical_min + typical_max) / 2
-            std_dev = (typical_max - typical_min) / 6
-            
-            value = random.gauss(mean, std_dev)
-            
-            # Limitar al rango válido del sensor
-            value = max(sensor_config['min'], min(sensor_config['max'], value))
-        else:
-            # Si no hay configuración, usar rangos de BD
-            if sensor['min_value'] is not None and sensor['max_value'] is not None:
-                value = random.uniform(sensor['min_value'], sensor['max_value'])
-            else:
-                value = random.uniform(0, 100)
+        if now - last_alert > cooldown:
+            self.alert_cooldowns[sensor_key] = now
+            return True
+        return False
+
+    async def send_email_alert(self, data):
+        """Envía alerta por email si corresponde"""
+        if not self.email_service:
+            return
+
+        status = data["status"]
+        sensor_type = data["type"]
+        sensor_key = f"{data['node_id']}_{sensor_type}"
         
-        return round(value, 2)
-    
-    def determine_status(self, value, variable):
-        """Determina el estado basado en umbrales de seguridad"""
-        sensor_config = SENSOR_TYPES.get(variable)
-        
-        if not sensor_config:
-            return "normal"
-        
-        # Para O2 (oxígeno) la lógica es inversa
-        if variable == "O2":
-            if value < sensor_config.get('danger_threshold', 18):
-                return "danger"
-            elif value < sensor_config.get('warning_threshold', 19):
-                return "warning"
-            elif value > sensor_config.get('safe_max', 23.5):
-                return "warning"
-            else:
-                return "normal"
-        
-        # Para otros sensores
-        if value > sensor_config.get('danger_threshold', float('inf')):
-            return "danger"
-        elif value > sensor_config.get('warning_threshold', float('inf')):
-            return "warning"
-        elif value > sensor_config.get('safe_max', float('inf')):
-            return "warning"
-        else:
-            return "normal"
-    
-    async def publish_sensor_data(self, sensor):
-        """Publica datos de un sensor en topics específicos"""
-        value = self.generate_sensor_value(sensor)
-        status = self.determine_status(value, sensor['variable'])
-        
-        payload = {
-            "sensor_id": sensor['id'],
-            "node_id": sensor['node_id'],
-            "variable": sensor['variable'],
-            "value": value,
-            "unit": sensor['unit'],
-            "status": status,
-            "timestamp": datetime.now().isoformat(),
-            "metadata": {
-                "brand": sensor['brand'],
-                "reference": sensor['reference'],
-                "zone_name": sensor['zone_name'],
-                "zone_category": sensor['zone_category'],
-                "mine": sensor['mine']
-            }
-        }
-        
-        payload_json = json.dumps(payload)
-        
-        # Publicar en topic general
-        self.mqtt_client.publish("iot/sensor/data", payload_json)
-        
-        # Publicar en topic específico del sensor
-        self.mqtt_client.publish(f"sensors/{sensor['id']}", payload_json)
-    
-    async def simulate(self):
-        """Bucle principal de simulación"""
-        if not self.sensors_cache:
-            print("⚠️ No hay sensores para simular")
+        if not self.should_send_alert(sensor_key, status):
             return
         
-        print(f"🔄 Iniciando simulación con {len(self.sensors_cache)} sensores...")
+        recipients = ALERT_RECIPIENTS.get(status, [])
+        if not recipients:
+            return
+        
+        print(f"\n{'🔴' if status == 'DANGER' else '🟡'} Enviando alerta por email...")
+        print(f"   Sensor: {sensor_type} | Estado: {status}")
+        print(f"   Destinatarios: {len(recipients)}")
+
+        # success = self.email_service.send_alert(recipients, data, status)
+
+        #if success:
+        #    self.email_stats["sent"] += 1
+         #   self.email_stats[status.lower()] += 1
+          #  print(f"   ✅ Email enviado correctamente")
+        #else:
+         #   self.email_stats["failed"] += 1
+          #  print(f"   ❌ Error al enviar email") """
+
+    def generate_sensor_data_from_db(self, sensor):
+        """Genera datos para sensores cargados desde BD"""
+        variable = sensor['variable']
+
+        # Usar estado del sensor para valores realistas
+        state = self.get_sensor_state(sensor['node_id'], variable)
+        current_value = state.update_value()
+        status = state.get_status()
+        
+        # Última calibración
+        last_calibration = datetime.now() - timedelta(days=random.randint(0, 350))
+        next_calibration = last_calibration + timedelta(days=365)
+        
+        # Convertir UUID a string para serialización JSON
+        sensor_id = str(sensor['id']) if sensor['id'] else str(uuid.uuid4())
+        mine_id = str(sensor['mine']) if sensor['mine'] else str(uuid.uuid4())
+        
+        return {
+            "id": sensor_id,  
+            "sensor_id": sensor_id,  
+            "node_id": sensor['node_id'],
+            "type": variable,
+            "description": f"Sensor de {variable}",
+            "value": current_value,
+            "unit": sensor['unit'],
+            "status": status,
+            "manufacturer": sensor['brand'],
+            "model": sensor['reference'],
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "battery": round(random.uniform(3.2, 4.2), 2) if random.random() > 0.3 else None,
+            "signal_strength": random.randint(-85, -40),
+            "installation_type": random.choice(INSTALL_TYPES),
+            "communication_protocol": random.choice(PROTOCOLS),
+            "certifications": random.sample(CERTIFICATIONS, k=random.randint(2, 4)),
+            "firmware_version": f"v{random.randint(1, 3)}.{random.randint(0, 12)}.{random.randint(0, 5)}",
+            "metadata": {
+                "accuracy": f"±{round(random.uniform(0.5, 3.0), 2)}%",
+                "sampling_rate": f"{random.choice([1, 2, 5, 10, 30, 60])}s",
+                "response_time": f"{random.choice([1, 2, 5, 10])}s",
+                "last_calibration": last_calibration.strftime("%Y-%m-%d"),
+                "next_calibration": next_calibration.strftime("%Y-%m-%d"),
+                "calibration_status": "Valid" if (next_calibration > datetime.now()) else "Expired",
+                "ip_rating": random.choice(["IP65", "IP67", "IP68"]),
+                "compliance": ["ISO 45001", "ISO 14001", "DS 024-2016-EM"]
+            },
+            "location": {
+                "zone": sensor['zone_name'],
+                "sector": sensor['zone_category'],
+                "mine": mine_id,
+                "coordinates": {
+                    "x": round(random.uniform(-1000, 1000), 2),
+                    "y": round(random.uniform(-1000, 1000), 2),
+                    "z": round(random.uniform(-500, 0), 2)
+                }
+            }
+        }
+
+    def generate_simulated_sensor_data(self, node_id):
+        """Genera datos para sensores simulados (fallback)"""
+        sensor_type = random.choice(list(SENSOR_TYPES.keys()))
+        params = SENSOR_TYPES[sensor_type]
+        
+        state = self.get_sensor_state(node_id, sensor_type)
+        current_value = state.update_value()
+        status = state.get_status()
+        
+        manufacturer = random.choice(list(MANUFACTURERS.keys()))
+        model = random.choice(MANUFACTURERS[manufacturer])
+        
+        last_calibration = datetime.now() - timedelta(days=random.randint(0, 350))
+        next_calibration = last_calibration + timedelta(days=365)
+        
+        return {
+            "id": str(uuid.uuid4()),
+            "node_id": node_id,
+            "type": sensor_type,
+            "description": f"Sensor de {sensor_type}",
+            "value": current_value,
+            "unit": params["unit"],
+            "status": status,
+            "manufacturer": manufacturer,
+            "model": model,
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "battery": round(random.uniform(3.2, 4.2), 2) if random.random() > 0.3 else None,
+            "signal_strength": random.randint(-85, -40),
+            "installation_type": random.choice(INSTALL_TYPES),
+            "communication_protocol": random.choice(PROTOCOLS),
+            "certifications": random.sample(CERTIFICATIONS, k=random.randint(2, 4)),
+            "firmware_version": f"v{random.randint(1, 3)}.{random.randint(0, 12)}.{random.randint(0, 5)}",
+            "safety_thresholds": {
+                "safe_max": params.get("safe_max"),
+                "safe_min": params.get("safe_min"),
+                "warning": params.get("warning_threshold"),
+                "danger": params.get("danger_threshold")
+            },
+            "metadata": {
+                "accuracy": f"±{round(random.uniform(0.5, 3.0), 2)}%",
+                "sampling_rate": f"{random.choice([1, 2, 5, 10, 30, 60])}s",
+                "response_time": f"{random.choice([1, 2, 5, 10])}s",
+                "last_calibration": last_calibration.strftime("%Y-%m-%d"),
+                "next_calibration": next_calibration.strftime("%Y-%m-%d"),
+                "calibration_status": "Valid" if (next_calibration > datetime.now()) else "Expired",
+                "operating_temp": f"-10 to 50 °C",
+                "ip_rating": random.choice(["IP65", "IP67", "IP68"]),
+                "compliance": ["ISO 45001", "ISO 14001", "DS 024-2016-EM"]
+            },
+            "location": {
+                "zone": random.choice(["Mina Principal Subterránea", "Zona de Túneles Norte", "Área de Procesamiento"]),
+                "sector": random.choice(["Producción", "Ventilación", "Transporte", "Mantenimiento"]),
+                "coordinates": {
+                    "x": round(random.uniform(-1000, 1000), 2),
+                    "y": round(random.uniform(-1000, 1000), 2),
+                    "z": round(random.uniform(-500, 0), 2)
+                }
+            }
+        }
+
+    async def publish_data(self, data):
+        """Publica datos MQTT y maneja alertas"""
+        try:
+
+            result = self.mqtt_client.publish(
+                TOPIC, 
+                json.dumps(data, ensure_ascii=False, indent=2), 
+                qos=QOS
+            )
+            if result.rc == mqtt.MQTT_ERR_SUCCESS:
+                # Publicar también en topic específico del sensor
+                sensor_topic = f"sensors/{data['node_id']}/{data['type']}"
+                self.mqtt_client.publish(sensor_topic, json.dumps(data))
+                
+                # Manejar alertas por email
+                if data["status"] in ["DANGER", "WARNING"]:
+                    await self.send_email_alert(data)
+                    
+                return True
+            else:
+                print(f"\nError al publicar (código {result.rc})")
+                return False
+                
+        except Exception as e:
+            print(f"\nError crítico en publicación: {e}")
+            return False
+
+    async def simulate_real_sensors(self):
+        """Simula sensores reales cargados desde BD"""
+        if not self.sensors_cache:
+            return False
+        
+        message_count = 0
+        danger_count = 0
+        warning_count = 0
         
         while True:
-            try:
-                # Publicar datos de todos los sensores
-                for sensor in self.sensors_cache:
-                    await self.publish_sensor_data(sensor)
+            for sensor in self.sensors_cache:
+                data = self.generate_sensor_data_from_db(sensor)
+                message_count += 1
                 
-                # Esperar antes del próximo ciclo (5 segundos)
-                await asyncio.sleep(5)
+                if data["status"] == "DANGER":
+                    danger_count += 1
+                elif data["status"] == "WARNING":
+                    warning_count += 1
                 
-            except Exception as e:
-                print(f"❌ Error en simulación: {e}")
-                await asyncio.sleep(5)
-    
-    async def start(self):
-        """Inicia el simulador completo"""
-        try:
-            await self.init_db()
-            await self.load_sensors()
-            self.init_mqtt()
-            await self.simulate()
-        except Exception as e:
-            print(f"❌ Error fatal en simulador: {e}")
-        finally:
-            if self.db_pool:
-                await self.db_pool.close()
-            if self.mqtt_client:
-                self.mqtt_client.loop_stop()
-                self.mqtt_client.disconnect()
+                await self.publish_data(data)
+                
+                # Pequeña pausa entre sensores
+                await asyncio.sleep(0.1)
+            
+            # Mostrar estadísticas cada 10 ciclos
+            if message_count % (len(self.sensors_cache) * 10) == 0:
+                print(f"\n📊 Estadísticas: {message_count} mensajes | "
+                      f"Peligro: {danger_count} | Advertencia: {warning_count} | "
+                      f"Emails: {self.email_stats['sent']} enviados")
+            
+            await asyncio.sleep(5)  # Ciclo principal cada 5 segundos
 
-# Función para usar en main.py
+    async def simulate_fallback_sensors(self):
+        """Modo simulación cuando no hay BD disponible"""
+        nodes = [f"node_{i:03d}" for i in range(1, 21)]  # 20 nodos simulados
+        
+        print(f"🔄 Usando modo simulación con {len(nodes)} nodos...")
+        
+        message_count = 0
+        
+        while True:
+            for node_id in nodes:
+                data = self.generate_simulated_sensor_data(node_id)
+                message_count += 1
+                
+                await self.publish_data(data)
+                
+            await asyncio.sleep(random.uniform(2, 4))
+
+    async def start(self):
+        """Inicia el simulador unificado"""
+        
+        # Inicializar componentes
+        db_connected = await self.init_db()
+        
+        if db_connected:
+            sensors_loaded = await self.load_sensors()
+        else:
+            sensors_loaded = False
+            
+        self.init_mqtt()
+        self.init_email_service()
+        
+        # Elegir modo de operación
+        if sensors_loaded:
+            await self.simulate_real_sensors()
+        else:
+            await self.simulate_fallback_sensors()
+
+# Función principal para usar en main.py
 async def simulate_data():
-    """Función de entrada para iniciar la simulación"""
-    simulator = SensorSimulator()
+    """Función de entrada para iniciar la simulación unificada"""
+    simulator = UnifiedSensorSimulator()
     await simulator.start()
+
+if __name__ == "__main__":
+    asyncio.run(simulate_data())
