@@ -276,7 +276,7 @@ class UnifiedSensorSimulator:
         mine_id = str(sensor['mine']) if sensor['mine'] else str(uuid.uuid4())
         
         return {
-            "id": sensor_id,  
+            "id": str(uuid.uuid4()),  
             "sensor_id": sensor_id,  
             "node_id": sensor['node_id'],
             "type": variable,
