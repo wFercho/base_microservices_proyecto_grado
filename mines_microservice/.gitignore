@@ -19,9 +19,6 @@
 /coverage.txt
 /profile.out
 
-# Archivos específicos de Go
-/go.mod
-/go.sum
 
 # Archivos de IDE y editores
 .vscode/
