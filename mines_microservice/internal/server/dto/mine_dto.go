@@ -3,68 +3,89 @@ package dto
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/wFercho/mines_microservice/internal/domain/mine"
 )
 
 type MineRequestDTO struct {
-	Name        string `json:"name" validate:"required"`
-	Description string `json:"description"`
-	Location    string `json:"location"`
-	ZoneType    string `json:"zone_type" validate:"required"`
-	Status      string `json:"status"`
-	MineType    string `json:"mine_type"`
-	Coordinates string `json:"coordinates"`
-	Depth       string `json:"depth"`
-	Area        string `json:"area"`
+	Nombre    string `json:"nombre" validate:"required"`
+	Ubicacion string `json:"ubicacion"`
+	Provincia string `json:"provincia"`
+	Latitud   string `json:"latitud"`
+	Longitud  string `json:"longitud"`
+	Direccion string `json:"direccion"`
+	Empresa   string `json:"empresa"`
+	Contacto  string `json:"contacto"`
+	Estado    string `json:"estado"`
 }
 
 type MineResponseDTO struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Location    string    `json:"location"`
-	ZoneType    string    `json:"zone_type"`
-	Status      string    `json:"status"`
-	MineType    string    `json:"mine_type"`
-	Coordinates string    `json:"coordinates"`
-	Depth       string    `json:"depth"`
-	Area        string    `json:"area"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID        string    `json:"id"`
+	Nombre    string    `json:"nombre"`
+	Ubicacion string    `json:"ubicacion"`
+	Provincia string    `json:"provincia"`
+	Latitud   string    `json:"latitud"`
+	Longitud  string    `json:"longitud"`
+	Direccion string    `json:"direccion"`
+	Empresa   string    `json:"empresa"`
+	Contacto  string    `json:"contacto"`
+	Estado    string    `json:"estado"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type MineUpdateRequestDTO struct {
+	Nombre    string `json:"nombre"`
+	Ubicacion string `json:"ubicacion"`
+	Provincia string `json:"provincia"`
+	Latitud   string `json:"latitud"`
+	Longitud  string `json:"longitud"`
+	Direccion string `json:"direccion"`
+	Empresa   string `json:"empresa"`
+	Contacto  string `json:"contacto"`
+	Estado    string `json:"estado"`
 }
 
 func (dto *MineRequestDTO) ToDomain() (*mine.Mine, error) {
-	now := time.Now()
-	return &mine.Mine{
-		ID:          uuid.New(),
-		Name:        dto.Name,
-		Description: dto.Description,
-		Location:    dto.Location,
-		ZoneType:    dto.ZoneType,
-		Status:      dto.Status,
-		MineType:    dto.MineType,
-		Coordinates: dto.Coordinates,
-		Depth:       dto.Depth,
-		Area:        dto.Area,
-		CreatedAt:   now,
-		UpdatedAt:   now,
-	}, nil
+	return mine.NewMineZone(
+		dto.Nombre,
+		dto.Ubicacion,
+		dto.Provincia,
+		dto.Latitud,
+		dto.Longitud,
+		dto.Direccion,
+		dto.Empresa,
+		dto.Contacto,
+		dto.Estado,
+	)
 }
 
-func FromMineDomain(mine *mine.Mine) MineResponseDTO {
+func FromMineDomain(mineDomain *mine.Mine) MineResponseDTO {
 	return MineResponseDTO{
-		ID:          mine.ID.String(),
-		Name:        mine.Name,
-		Description: mine.Description,
-		Location:    mine.Location,
-		ZoneType:    mine.ZoneType,
-		Status:      mine.Status,
-		MineType:    mine.MineType,
-		Coordinates: mine.Coordinates,
-		Depth:       mine.Depth,
-		Area:        mine.Area,
-		CreatedAt:   mine.CreatedAt,
-		UpdatedAt:   mine.UpdatedAt,
+		ID:        mineDomain.ID.String(),
+		Nombre:    mineDomain.Nombre,
+		Ubicacion: mineDomain.Ubicacion,
+		Provincia: mineDomain.Provincia,
+		Latitud:   mineDomain.Latitud,
+		Longitud:  mineDomain.Longitud,
+		Direccion: mineDomain.Direccion,
+		Empresa:   mineDomain.Empresa,
+		Contacto:  mineDomain.Contacto,
+		Estado:    mineDomain.Estado,
+		CreatedAt: mineDomain.CreatedAt,
+		UpdatedAt: mineDomain.UpdatedAt,
 	}
+}
+
+func (dto *MineUpdateRequestDTO) UpdateDomain(mineDomain *mine.Mine) {
+	mineDomain.Update(
+		dto.Nombre,
+		dto.Ubicacion,
+		dto.Provincia,
+		dto.Latitud,
+		dto.Longitud,
+		dto.Direccion,
+		dto.Empresa,
+		dto.Contacto,
+		dto.Estado,
+	)
 }

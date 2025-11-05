@@ -8,18 +8,18 @@ import (
 )
 
 type MinePostgresModel struct {
-	ID          uuid.UUID `gorm:"primaryKey"`
-	Name        string    `gorm:"size:100;not null;unique"`
-	Description string    `gorm:"type:text"`
-	Location    string    `gorm:"size:200"`
-	ZoneType    string    `gorm:"size:50;not null"`
-	Status      string    `gorm:"size:20;default:'active'"`
-	MineType    string    `gorm:"size:50"`
-	Coordinates string    `gorm:"size:100"`
-	Depth       string    `gorm:"size:50"`
-	Area        string    `gorm:"size:50"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	ID        uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	Nombre    string    `gorm:"size:255;not null"`
+	Ubicacion string    `gorm:"size:255"`
+	Provincia string    `gorm:"size:100"`
+	Latitud   string    `gorm:"size:50"`
+	Longitud  string    `gorm:"size:50"`
+	Direccion string    `gorm:"size:255"`
+	Empresa   string    `gorm:"size:255"`
+	Contacto  string    `gorm:"size:255"`
+	Estado    string    `gorm:"size:20;default:'activa'"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 func (MinePostgresModel) TableName() string {
@@ -28,34 +28,34 @@ func (MinePostgresModel) TableName() string {
 
 func (mm *MinePostgresModel) ToDomain() *mine.Mine {
 	return &mine.Mine{
-		ID:          mm.ID,
-		Name:        mm.Name,
-		Description: mm.Description,
-		Location:    mm.Location,
-		ZoneType:    mm.ZoneType,
-		Status:      mm.Status,
-		MineType:    mm.MineType,
-		Coordinates: mm.Coordinates,
-		Depth:       mm.Depth,
-		Area:        mm.Area,
-		CreatedAt:   mm.CreatedAt,
-		UpdatedAt:   mm.UpdatedAt,
+		ID:        mm.ID,
+		Nombre:    mm.Nombre,
+		Ubicacion: mm.Ubicacion,
+		Provincia: mm.Provincia,
+		Latitud:   mm.Latitud,
+		Longitud:  mm.Longitud,
+		Direccion: mm.Direccion,
+		Empresa:   mm.Empresa,
+		Contacto:  mm.Contacto,
+		Estado:    mm.Estado,
+		CreatedAt: mm.CreatedAt,
+		UpdatedAt: mm.UpdatedAt,
 	}
 }
 
 func FromDomainToMinePostgresModel(m *mine.Mine) *MinePostgresModel {
 	return &MinePostgresModel{
-		ID:          m.ID,
-		Name:        m.Name,
-		Description: m.Description,
-		Location:    m.Location,
-		ZoneType:    m.ZoneType,
-		Status:      m.Status,
-		MineType:    m.MineType,
-		Coordinates: m.Coordinates,
-		Depth:       m.Depth,
-		Area:        m.Area,
-		CreatedAt:   m.CreatedAt,
-		UpdatedAt:   m.UpdatedAt,
+		ID:        m.ID,
+		Nombre:    m.Nombre,
+		Ubicacion: m.Ubicacion,
+		Provincia: m.Provincia,
+		Latitud:   m.Latitud,
+		Longitud:  m.Longitud,
+		Direccion: m.Direccion,
+		Empresa:   m.Empresa,
+		Contacto:  m.Contacto,
+		Estado:    m.Estado,
+		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
 	}
 }
