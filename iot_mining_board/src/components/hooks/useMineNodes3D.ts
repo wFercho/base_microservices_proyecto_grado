@@ -82,7 +82,7 @@ export const useMineNodes3D = (mineId: string | undefined) => {
       setLoading(true);
       setError(null);
       const response = await axios.get<MineNodes3D>(
-        `http://${MINES_API_HOST}/mine-nodes3d/mine/${mineId}`
+        `${MINES_API_HOST}/mine-nodes3d/mine/${mineId}`
       );
 
       const nodesWithColor = response.data.nodes.map((node) => ({
