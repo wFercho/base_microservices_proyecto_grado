@@ -23,6 +23,8 @@ interface MineZonesListProps {
   onEdit?: (zone: MineZone) => void;
   onDelete?: (zoneId: string) => void;
 }
+const API_MINES_URL = import.meta.env.VITE_API_URL_MINES
+
 
 export default function MineZonesList({ onEdit, onDelete }: MineZonesListProps) {
   const [zones, setZones] = useState<MineZone[]>([]);
@@ -52,7 +54,7 @@ export default function MineZonesList({ onEdit, onDelete }: MineZonesListProps) 
     try {
       setLoading(true);
       setError(null); // Resetear error al hacer fetch
-      const response = await fetch('http://localhost:8082/mines');
+      const response = await fetch(`${API_MINES_URL}/mines`);
 
       if (!response.ok) {
         throw new Error('Error al cargar las zonas mineras');
