@@ -33,7 +33,7 @@ import { MineZone } from '../../interfaces/Mines';
 import { MineService } from '../../services/MinesServices';
 import { useNavigate } from 'react-router-dom';
 import { AlertRulesConfiguration } from './AlertRulesConfiguration';
-import {  MoreVertical, Navigation, Phone } from 'lucide-react';
+import { MoreVertical, Navigation, Phone } from 'lucide-react';
 // Tipos TypeScript para Configuración
 type SensorType = 'Temperatura' | 'Humedad' | 'PM2.5' | 'PM10' | 'CO2' | 'Presión' | 'Luminosidad' | 'Ruido';
 type IconComponent = React.ComponentType<{ size?: number; className?: string }>;
@@ -857,7 +857,7 @@ const ZonesConfiguration: React.FC = () => {
               </div>
             </div>
 
-         
+
           </div>
         ))}
       </div>
@@ -909,7 +909,7 @@ export const ConfigurationModule: React.FC = () => {
     { id: 'gateways', name: 'Gateways', icon: Network, count: systemStats.totalGateways },
     { id: 'zones', name: 'Zonas', icon: MapPin, count: systemStats.totalMines },
     { id: 'alerts', name: 'Alertas', icon: AlertCircle, count: 0 },
-    { id: 'system', name: 'Sistema', icon: Settings, count: 0 }
+    //{ id: 'system', name: 'Sistema', icon: Settings, count: 0 }
   ];
 
 
@@ -1176,32 +1176,35 @@ export const ConfigurationModule: React.FC = () => {
         </div>
       </div>
 
-      {/* Navegación por pestañas */}
+      {/* Navegación por pestañas - Responsive con scroll horizontal */}
       <div className="mb-6">
-        <nav className="flex space-x-8">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center py-2 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-              >
-                <Icon size={20} className="mr-2" />
-                {tab.name}
-                {tab.count > 0 && (
-                  <span className="ml-2 bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs">
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
+        <div className="relative">
+          <nav className="flex space-x-8 overflow-x-auto pb-2 -mb-2 hide-scrollbar">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center flex-shrink-0 py-2 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                >
+                  <Icon size={20} className="mr-2 flex-shrink-0" />
+                  <span className="hidden xs:inline">{tab.name}</span>
+                  {tab.count > 0 && (
+                    <span className="ml-2 bg-blue-100 text-blue-600 px-2 py-1 rounded-full text-xs">
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+        </div>
       </div>
+
 
       {/* Contenido de las pestañas */}
       <TabContent isActive={activeTab === 'sensors'}>

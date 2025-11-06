@@ -238,19 +238,7 @@ export const AlertRulesConfiguration: React.FC = () => {
                             📧 Email
                           </span>
                         )}
-                        {rule.smsNotification && (
-                          <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
-                            📱 SMS
-                          </span>
-                        )}
-                        {rule.autoActions.length > 0 && (
-                          <span 
-                            className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-medium"
-                            title={rule.autoActions.join(', ')}
-                          >
-                            🤖 {rule.autoActions.length} acciones
-                          </span>
-                        )}
+                       
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">

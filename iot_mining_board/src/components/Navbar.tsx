@@ -3,6 +3,7 @@ import { Bell, Menu, Moon, Sun } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../Context/NotificationsContext';
 import { UserProfileDropdown } from './UserProfile/UserProfileDropdown';
+import { useAlerts } from './hooks/useAlerts';
 
 interface NavbarProps {
   toggleSidebar: () => void;
@@ -14,7 +15,9 @@ export const Navbar = ({ toggleSidebar, onThemeChange }: NavbarProps) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
-
+  const {
+    alerts: alertList,
+  } = useAlerts();
   // Verificar el tema inicial
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
@@ -122,36 +125,47 @@ export const Navbar = ({ toggleSidebar, onThemeChange }: NavbarProps) => {
 
               <div className="max-h-96 overflow-y-auto">
                 {alerts.length > 0 ? (
-                  alerts.map((alert) => (
-                    <div
-                      key={alert.id}
-                      className={`p-3 border-b border-gray-100 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${alert.type === 'DANGER' || alert.type === 'ERROR'
-                        ? 'bg-red-50 dark:bg-red-900/20'
-                        : 'bg-yellow-50 dark:bg-yellow-900/20'
-                        }`}
-                      onClick={() => handleNotificationClick(alert.sensorId)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <span className={`text-sm font-medium ${alert.type === 'DANGER' || alert.type === 'ERROR'
-                          ? 'text-red-700 dark:text-red-300'
-                          : 'text-yellow-700 dark:text-yellow-300'
-                          }`}>
-                          {alert.message}
-                        </span>
-                        <span className={`text-xs px-2 py-1 rounded-full ${alert.type === 'DANGER' || alert.type === 'ERROR'
-                          ? 'bg-red-100 dark:bg-red-800/50 text-red-800 dark:text-red-200'
-                          : 'bg-yellow-100 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-200'
-                          }`}>
-                          {alert.type}
-                        </span>
+                  <>
+                    {alerts.length > 50 && (
+                      <div className="p-2 text-center text-xs text-gray-500 dark:text-gray-400 bg-blue-50 dark:bg-blue-900/20">
+                        Mostrando las últimas 50  de {alerts.length} notificaciones
                       </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        {alert.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        {' • '}
-                        {alert.timestamp.toLocaleDateString([], { day: 'numeric', month: 'short' })}
-                      </div>
-                    </div>
-                  ))
+                    )}
+                    {alerts
+                      .slice(50)
+
+                      .map((alert) => (
+                        <div
+                          key={alert.id}
+                          className={`p-3 border-b border-gray-100 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${alert.type === 'DANGER' || alert.type === 'ERROR'
+                            ? 'bg-red-50 dark:bg-red-900/20'
+                            : 'bg-yellow-50 dark:bg-yellow-900/20'
+                            }`}
+                          onClick={() => handleNotificationClick(alert.sensorId)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <span className={`text-sm font-medium ${alert.type === 'DANGER' || alert.type === 'ERROR'
+                              ? 'text-red-700 dark:text-red-300'
+                              : 'text-yellow-700 dark:text-yellow-300'
+                              }`}>
+                              {alert.message}
+                            </span>
+                            <span className={`text-xs px-2 py-1 rounded-full ${alert.type === 'DANGER' || alert.type === 'ERROR'
+                              ? 'bg-red-100 dark:bg-red-800/50 text-red-800 dark:text-red-200'
+                              : 'bg-yellow-100 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-200'
+                              }`}>
+                              {alert.type}
+                            </span>
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {alert.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {' • '}
+                            {alert.timestamp.toLocaleDateString([], { day: 'numeric', month: 'short' })}
+                          </div>
+                        </div>
+                      ))
+                    }
+                  </>
                 ) : (
                   <div className="p-4 text-center text-gray-500 dark:text-gray-400 text-sm">
                     No hay notificaciones nuevas

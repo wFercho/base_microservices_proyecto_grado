@@ -1,6 +1,7 @@
 // interfaces/Sensors.ts
 export interface SensorData {
   id: string;
+  sensor_id: string;
   type: string;
   value: number;
   unit: string;

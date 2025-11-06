@@ -39,7 +39,6 @@ export default function MineZonesList({ onEdit, onDelete }: MineZonesListProps) 
   const location = useLocation();
 
 
-
   useEffect(() => {
     // Resetear estados de upload cuando se navega de vuelta
     setUploading(null);

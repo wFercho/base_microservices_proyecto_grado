@@ -30,7 +30,7 @@ const SENSOR_TYPES = [
 ];
 
 
-
+/* 
 const AUTO_ACTIONS = [
     'Activar ventilación',
     'Cerrar accesos',
@@ -44,7 +44,7 @@ const AUTO_ACTIONS = [
     'Notificar mantenimiento',
     'Parar maquinaria',
     'Evacuar área'
-];
+]; */
 
 // Valores por defecto basados en normativas
 const DEFAULT_THRESHOLDS: Record<string, { warning: number; critical: number; unit: string }> = {
@@ -407,23 +407,12 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({
                                 />
                                 <span className="text-sm text-gray-700">📧 Email</span>
                             </label>
-                            <label className="flex items-center space-x-2">
-                                <input
-                                    type="checkbox"
-                                    checked={formData.smsNotification}
-                                    onChange={(e) => setFormData(prev => ({
-                                        ...prev,
-                                        smsNotification: e.target.checked
-                                    }))}
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                                <span className="text-sm text-gray-700">📱 SMS</span>
-                            </label>
+                         
                         </div>
                     </div>
 
                     {/* Acciones Automáticas */}
-                    <div>
+                    {/*   <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
                             Acciones Automáticas
                         </label>
@@ -445,7 +434,7 @@ export const AlertRuleForm: React.FC<AlertRuleFormProps> = ({
                                 </label>
                             ))}
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Estado */}
                     <div>

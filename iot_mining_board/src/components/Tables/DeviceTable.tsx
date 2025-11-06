@@ -24,6 +24,7 @@ export default function DeviceTable() {
 
     // Usar el hook unificado
     const {
+        allSensorData,
         getTableData,
         alerts,
         totalCount,
@@ -149,7 +150,7 @@ export default function DeviceTable() {
         // Filtro normal
         return (
             item.id.toLowerCase().includes(lowerSearchTerm) ||
-            item.id.toLowerCase().includes(lowerSearchTerm) ||
+            item.sensor_id.toLowerCase().includes(lowerSearchTerm) ||
             item.type.toLowerCase().includes(lowerSearchTerm) ||
             item.status?.toLowerCase().includes(lowerSearchTerm) ||
             item.manufacturer.toLowerCase().includes(lowerSearchTerm)
@@ -482,6 +483,12 @@ export default function DeviceTable() {
                                     className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
                                     onClick={() => requestSort('node_id')}
                                 >
+                                    Id Sensor {sortConfig?.key === 'id' ? (sortConfig.direction === 'ascending' ? '↑' : '↓') : ''}
+                                </th>
+                                <th
+                                    className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                                    onClick={() => requestSort('node_id')}
+                                >
                                     Nodo {sortConfig?.key === 'node_id' ? (sortConfig.direction === 'ascending' ? '↑' : '↓') : ''}
                                 </th>
                                 <th
@@ -535,6 +542,37 @@ export default function DeviceTable() {
                                                 }`}
                                             onClick={() => handleRowClick(alert ? alert.sensorData : item)}
                                         >
+                                            <td className="px-6 py-4 text-centerwhitespace-nowrap text-sm font-medium text-gray-900">
+                                                <div className="flex items-center">
+                                                    {hasAlert && (
+                                                        <span className={`
+                                ${alert.type === 'critical' ? 'text-red-600' :
+                                                                alert.type === 'warning' ? 'text-yellow-600' :
+                                                                    'text-blue-600'}
+                            `}>
+                                                            ⚠️
+                                                        </span>
+                                                    )}
+                                                    {!hasAlert && (
+                                                        <>
+                                                            {item.status === 'OK' && '🟢'}
+                                                            {item.status === 'WARNING' && '🟡'}
+                                                            {(item.status === 'DANGER' || item.status === 'ERROR') && '🔴'}
+                                                        </>
+                                                    )}
+                                                    <span className="ml-2">{item.sensor_id}</span>
+                                                    {hasAlert && (
+                                                        <span className={`
+                                ml-2 px-2 py-1 text-xs font-semibold rounded-full
+                                ${alert.type === 'critical' ? 'bg-red-100 text-red-800' :
+                                                                alert.type === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                                                                    'bg-blue-100 text-blue-800'}
+                            `}>
+                                                            {alert.type.toUpperCase()}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="px-6 py-4 text-centerwhitespace-nowrap text-sm font-medium text-gray-900">
                                                 <div className="flex items-center">
                                                     {hasAlert && (

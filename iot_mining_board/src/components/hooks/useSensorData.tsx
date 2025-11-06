@@ -50,7 +50,6 @@ export const useSensorData = (): UseSensorDataReturn => {
     const activeRulesRef = useRef<AlertRule[]>([]);
 
     // Referencias para suscripciones
-    const currentSubscriptionsRef = useRef<string[]>([]);
     const isSubscribedRef = useRef<boolean>(false);
 
     // Actualizar ref con reglas activas
@@ -235,7 +234,7 @@ export const useSensorData = (): UseSensorDataReturn => {
     }, [processSensorDataForAlerts]);
 
     // Función auxiliar para mapear estados
-    const mapReceivedStatus = (status: string): string => {
+  /*   const mapReceivedStatus = (status: string): string => {
         const statusMap: { [key: string]: string } = {
             'normal': 'OK',
             'warning': 'WARNING',
@@ -243,7 +242,7 @@ export const useSensorData = (): UseSensorDataReturn => {
             'error': 'ERROR'
         };
         return statusMap[status.toLowerCase()] || status.toUpperCase();
-    };
+    }; */
     const {
         isConnected,
         connectionState,
@@ -279,16 +278,23 @@ export const useSensorData = (): UseSensorDataReturn => {
 
     // Datos combinados para la tabla
     const getTableData = useCallback((): (SensorData)[] => {
-        // Combinar datos crudos con alertas
-        const combinedData = [...allSensorData];
+        const combinedData = allSensorData.map(data => {
+            const alert = alerts.find(
+                a => a.sensorData.id === data.id &&
+                    a.sensorData.timestamp === data.timestamp
+            );
 
-        // Agregar alertas que no estén ya en los datos crudos
+            // Si hay alerta, actualizar el estado, sino mantener el original
+            return alert ? { ...data, status: alert.sensorData.status } : data;
+        });
+
+        // Agregar alertas que no existen en los datos originales
         alerts.forEach(alert => {
-            const alreadyInData = allSensorData.some(
+            const exists = combinedData.some(
                 data => data.id === alert.sensorData.id &&
                     data.timestamp === alert.sensorData.timestamp
             );
-            if (!alreadyInData) {
+            if (!exists) {
                 combinedData.push(alert.sensorData);
             }
         });

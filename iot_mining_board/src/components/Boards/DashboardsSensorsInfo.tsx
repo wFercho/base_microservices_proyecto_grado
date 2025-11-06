@@ -218,9 +218,6 @@ export const MiningDashboard: React.FC = () => {
     return alerts.slice(0, 4); // Limitar a 4 alertas
   };
 
-
-  const timeRanges: TimeRange[] = ['1h', '6h', '24h', '7d'];
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 p-6 flex items-center justify-center">
@@ -267,8 +264,8 @@ export const MiningDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Filtros de tiempo */}
-        <div className="flex space-x-2">
+      {/*   {/* Filtros de tiempo */}
+     {/*    <div className="flex space-x-2">
           {timeRanges.map((range) => (
             <button
               key={range}
@@ -281,7 +278,7 @@ export const MiningDashboard: React.FC = () => {
               {range}
             </button>
           ))}
-        </div>
+        </div> */}
       </div>
 
       {/* Resumen general */}

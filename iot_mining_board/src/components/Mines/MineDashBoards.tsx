@@ -39,6 +39,8 @@ export const MineDashboard = () => {
     }
   };
 
+
+
   const fetchStats = async () => {
     try {
       const statsData = await MineService.getMineStats();
