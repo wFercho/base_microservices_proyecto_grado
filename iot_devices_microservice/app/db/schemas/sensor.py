@@ -42,6 +42,7 @@ class VariableTipo(str, Enum):
     VOC = "VOC"
     LUMINOSIDAD = "Luminosidad"
     RUIDO = "Ruido"
+    METANO = "Metano"
 
 class SensorBase(BaseModel):
     """Esquema base con campos requeridos"""
