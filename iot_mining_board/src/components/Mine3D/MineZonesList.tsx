@@ -159,7 +159,7 @@ export default function MineZonesList({ onEdit, onDelete }: MineZonesListProps) 
     formData.append('file', file);
 
     try {
-      const response = await fetch(`http://localhost:8082/mine-nodes3d/upload-csv/${zoneId}`, {
+      const response = await fetch(`${API_MINES_URL}/mine-nodes3d/upload-csv/${zoneId}`, {
         method: 'POST',
         body: formData,
       });
