@@ -469,7 +469,7 @@ class UnifiedSensorSimulator:
         if sensors_loaded:
             await self.simulate_real_sensors()
         else:
-            await self.simulate_fallback_sensors()
+            print("⚠️ No se cargaron sensores desde BD. Iniciando modo simulación.")
 
 # Función principal para usar en main.py
 async def simulate_data():
