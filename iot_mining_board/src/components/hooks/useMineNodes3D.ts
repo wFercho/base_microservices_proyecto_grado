@@ -4,7 +4,7 @@ import { MineNodes3D, IRealTimeSensorData } from "../../interfaces/main";
 import { useMineNodesStore } from "../../state/mineNodesStore";
 import { webSocketService, WebSocketMessage } from "../../services/websocketService";
 
-const MINES_API_HOST = "localhost:8082";
+const MINES_API_HOST = import.meta.env.VITE_API_URL_MINES;
 
 export const useMineNodes3D = (mineId: string | undefined) => {
   const {
