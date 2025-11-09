@@ -249,76 +249,7 @@ export default function DeviceTable() {
                         </div>
 
                         {/* Controles de suscripción */}
-                        <div className="flex items-center gap-4">
-                            <div className={`flex items-center gap-2 ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
-                                <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-                                <span className="text-sm font-medium">
-                                    {isConnected ? 'Conectado' : 'Desconectado'} - {connectionState}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="flex flex-col gap-3">
-                            {/* Input para suscripciones */}
-                            <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    placeholder="IDs de sensores (ej: sensor1,sensor2) o 'all'"
-                                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all min-w-[250px]"
-                                    value={subscriptionInput}
-                                    onChange={(e) => setSubscriptionInput(e.target.value)}
-                                    onKeyPress={(e) => {
-                                        if (e.key === 'Enter') {
-                                            handleSubscribe();
-                                        }
-                                    }}
-                                />
-                                <button
-                                    onClick={handleSubscribe}
-                                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
-                                >
-                                    Suscribir
-                                </button>
-                                <button
-                                    onClick={handleUnsubscribe}
-                                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
-                                >
-                                    Cancelar
-                                </button>
-                            </div>
-
-                            {/* Botones para todos */}
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={handleSubscribeAll}
-                                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium flex-1"
-                                >
-                                    Suscribir a Todos
-                                </button>
-                                <button
-                                    onClick={handleUnsubscribeAll}
-                                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm font-medium flex-1"
-                                >
-                                    Cancelar Todas
-                                </button>
-                            </div>
-
-                            {/* Mostrar suscripciones actuales */}
-                            {currentSubscriptions.length > 0 && (
-                                <div className="mt-2">
-                                    <p className="text-sm text-gray-600 mb-1">Suscripciones activas:</p>
-                                    <div className="flex flex-wrap gap-1">
-                                        {currentSubscriptions.map((sub, index) => (
-                                            <span
-                                                key={index}
-                                                className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium"
-                                            >
-                                                {sub}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                       
                     </div>
                 </div>
 

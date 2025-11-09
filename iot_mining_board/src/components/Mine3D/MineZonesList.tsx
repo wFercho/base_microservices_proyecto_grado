@@ -6,18 +6,19 @@ import Layout from "../MainLayout";
 
 export interface MineZone {
   id: string;
-  name: string;
-  description: string | null;
-  location: string | null;
-  zone_type: string;
-  status: 'active' | 'inactive' | 'maintenance';
-  mine_type: string | null;
-  coordinates: string | null;
-  depth: string | null;
-  area: string | null;
+  nombre: string;
+  ubicacion: string;
+  provincia: string;
+  latitud: string;
+  longitud: string;
+  direccion: string;
+  empresa: string;
+  contacto: string;
+  estado: string;
   created_at: string;
-  updated_at: string | null;
+  updated_at: string;
 }
+
 
 interface MineZonesListProps {
   onEdit?: (zone: MineZone) => void;
@@ -83,10 +84,10 @@ export default function MineZonesList({ onEdit, onDelete }: MineZonesListProps) 
 
   // Filter zones based on search and status
   const filteredZones = zones.filter(zone => {
-    const safeName = getSafeValue(zone.name, '').toLowerCase();
-    const safeDescription = getSafeValue(zone.description, '').toLowerCase();
-    const safeLocation = getSafeValue(zone.location, '').toLowerCase();
-    const safeZoneType = getSafeValue(zone.zone_type, '').toLowerCase();
+    const safeName = getSafeValue(zone.nombre, '').toLowerCase();
+    const safeDescription = getSafeValue(zone.provincia, '').toLowerCase();
+    const safeLocation = getSafeValue(`${zone.latitud}-${zone.longitud}`, '').toLowerCase();
+    const safeZoneType = getSafeValue(zone.ubicacion, '').toLowerCase();
 
     const matchesSearch =
       safeName.includes(searchTerm.toLowerCase()) ||
@@ -94,7 +95,7 @@ export default function MineZonesList({ onEdit, onDelete }: MineZonesListProps) 
       safeLocation.includes(searchTerm.toLowerCase()) ||
       safeZoneType.includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === 'all' || zone.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || zone.estado === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -338,32 +339,30 @@ export default function MineZonesList({ onEdit, onDelete }: MineZonesListProps) 
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-lg font-medium text-gray-900">
-                        {getSafeValue(zone.name, 'Nombre no disponible')}
+                        {getSafeValue(zone.nombre, 'Nombre no disponible')}
                       </h3>
                       <span
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${zone.status === 'active'
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${zone.estado === 'active'
                           ? 'bg-green-100 text-green-800'
-                          : zone.status === 'inactive'
+                          : zone.estado === 'inactive'
                             ? 'bg-gray-100 text-gray-800'
                             : 'bg-yellow-100 text-yellow-800'
                           }`}
                       >
-                        {zone.status === 'active' ? 'Activo' :
-                          zone.status === 'inactive' ? 'Inactivo' : 'Mantenimiento'}
+                        {zone.estado === 'active' ? 'Activo' :
+                          zone.estado === 'inactive' ? 'Inactivo' : 'Mantenimiento'}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm text-gray-600">
                       <div>
-                        <span className="font-medium">Tipo de Zona:</span> {getSafeValue(zone.zone_type)}
+                        <span className="font-medium">Tipo de Zona:</span> {getSafeValue(zone.ubicacion)}
                       </div>
                       <div>
-                        <span className="font-medium">Ubicación:</span> {getSafeValue(zone.location)}
+                        <span className="font-medium">Ubicación:</span> {getSafeValue(`${zone.latitud}-${zone.longitud}`)}
                       </div>
-                      <div>
-                        <span className="font-medium">Tipo de Mina:</span> {getSafeValue(zone.mine_type)}
-                      </div>
-                      {zone.area && (
+                     
+                      {/* {zone.area && (
                         <div>
                           <span className="font-medium">Área:</span> {getSafeValue(zone.area)}
                         </div>
@@ -372,17 +371,17 @@ export default function MineZonesList({ onEdit, onDelete }: MineZonesListProps) 
                         <div>
                           <span className="font-medium">Profundidad:</span> {getSafeValue(zone.depth)}
                         </div>
-                      )}
-                      {zone.coordinates && (
+                      )} */}
+                      {zone.latitud && zone.longitud && (
                         <div>
-                          <span className="font-medium">Coordenadas:</span> {getSafeValue(zone.coordinates)}
+                          <span className="font-medium">Coordenadas:</span> {getSafeValue(zone.latitud)}
                         </div>
                       )}
                     </div>
 
-                    {zone.description && (
+                    {zone.provincia && (
                       <p className="mt-2 text-sm text-gray-600 line-clamp-2">
-                        {getSafeValue(zone.description)}
+                        {getSafeValue(zone.provincia)}
                       </p>
                     )}
 
