@@ -24,7 +24,6 @@ export default function DeviceTable() {
 
     // Usar el hook unificado
     const {
-        allSensorData,
         getTableData,
         alerts,
         totalCount,
@@ -312,27 +311,7 @@ export default function DeviceTable() {
                             </span>
                         </button>
 
-                        <button
-                            onClick={() => {
-                                setSearchTerm('type:alert')
-                                setCurrentPage(1);
-
-                            }}
-                            className={`group relative px-4 py-2 rounded-lg font-medium text-sm transition-all duration-200 ${searchTerm === 'type:alert'
-                                ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md shadow-purple-200'
-                                : 'bg-white border border-gray-200 text-gray-700 hover:border-purple-300 hover:shadow-sm'
-                                }`}
-                        >
-                            <span className="flex items-center gap-2">
-                                <span className={`w-2 h-2 rounded-full ${searchTerm === 'type:alert' ? 'bg-white' : 'bg-purple-500'
-                                    }`}></span>
-                                Procesadas
-                                <span className={`px-2 py-0.5 rounded-full text-xs ${searchTerm === 'type:alert' ? 'bg-white/20' : 'bg-gray-100'
-                                    }`}>
-                                    {alerts.length}
-                                </span>
-                            </span>
-                        </button>
+        
 
                         {/* Separador vertical */}
                         <div className="hidden sm:block w-px h-8 bg-gray-200"></div>
@@ -499,7 +478,7 @@ export default function DeviceTable() {
                                                                 alert.type === 'warning' ? 'bg-yellow-100 text-yellow-800' :
                                                                     'bg-blue-100 text-blue-800'}
                             `}>
-                                                            {alert.type.toUpperCase()}
+                                                            {mapStatusToSpanish(alert.type)}
                                                         </span>
                                                     )}
                                                 </div>
@@ -530,7 +509,7 @@ export default function DeviceTable() {
                                                                 alert.type === 'warning' ? 'bg-yellow-100 text-yellow-800' :
                                                                     'bg-blue-100 text-blue-800'}
                             `}>
-                                                            {alert.type.toUpperCase()}
+                                                            {mapStatusToSpanish(alert.type)}
                                                         </span>
                                                     )}
                                                 </div>

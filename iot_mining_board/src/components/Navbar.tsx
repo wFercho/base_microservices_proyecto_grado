@@ -62,7 +62,24 @@ export const Navbar = ({ toggleSidebar, onThemeChange }: NavbarProps) => {
     }
   };
 
-  // Obtener las últimas 50 alertas (las más recientes)
+  const mapStatusToSpanish = (status: string): string => {
+    const statusMap: { [key: string]: string } = {
+      // Estados originales
+      'OK': 'NORMAL',
+      'WARNING': 'ADVERTENCIA',
+      'DANGER': 'PELIGRO',
+      'ERROR': 'ERROR',
+      // Tipos de alerta
+      'critical': 'CRÍTICO',
+      'warning': 'ADVERTENCIA',
+      'info': 'INFORMATIVO'
+    };
+
+    return statusMap[status] || status.toUpperCase();
+  };
+
+  // Obtener solo las últimas 50 notificaciones (las más recientes)
+  // slice(-50) toma las últimas 50 del array
   const recentAlerts = alerts.slice(-50);
 
   return (
@@ -138,27 +155,24 @@ export const Navbar = ({ toggleSidebar, onThemeChange }: NavbarProps) => {
                     {recentAlerts.map((alert) => (
                       <div
                         key={alert.id}
-                        className={`p-3 border-b border-gray-100 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${
-                          alert.type === 'DANGER' || alert.type === 'ERROR'
+                        className={`p-3 border-b border-gray-100 dark:border-gray-600 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 ${alert.type === 'DANGER' || alert.type === 'ERROR'
                             ? 'bg-red-50 dark:bg-red-900/20'
                             : 'bg-yellow-50 dark:bg-yellow-900/20'
-                        }`}
+                          }`}
                         onClick={() => handleNotificationClick(alert.sensorId)}
                       >
                         <div className="flex justify-between items-start">
-                          <span className={`text-sm font-medium ${
-                            alert.type === 'DANGER' || alert.type === 'ERROR'
+                          <span className={`text-sm font-medium ${alert.type === 'DANGER' || alert.type === 'ERROR'
                               ? 'text-red-700 dark:text-red-300'
                               : 'text-yellow-700 dark:text-yellow-300'
-                          }`}>
+                            }`}>
                             {alert.message}
                           </span>
-                          <span className={`text-xs px-2 py-1 rounded-full ${
-                            alert.type === 'DANGER' || alert.type === 'ERROR'
+                          <span className={`text-xs px-2 py-1 rounded-full ${alert.type === 'DANGER' || alert.type === 'ERROR'
                               ? 'bg-red-100 dark:bg-red-800/50 text-red-800 dark:text-red-200'
                               : 'bg-yellow-100 dark:bg-yellow-800/50 text-yellow-800 dark:text-yellow-200'
-                          }`}>
-                            {alert.type}
+                            }`}>
+                            {mapStatusToSpanish(alert.type)}
                           </span>
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -184,4 +198,4 @@ export const Navbar = ({ toggleSidebar, onThemeChange }: NavbarProps) => {
       </div>
     </nav>
   );
-};
+}
