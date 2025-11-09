@@ -24,6 +24,8 @@ function generateUUID() {
     });
 }
 
+const MAX_NOTIFICATIONS = 50;
+
 export const NotificationsProvider = ({ children }: { children: ReactNode }) => {
     const [alerts, setAlerts] = useState<AlertNotification[]>([]);
 
@@ -34,7 +36,18 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
             sensorId: alert.sensorId, // Mantener el ID del sensor original
             timestamp: new Date()
         };
-        setAlerts(prev => [newAlert, ...prev]);
+        
+        setAlerts(prev => {
+            // Agregar la nueva alerta al inicio
+            const updatedAlerts = [newAlert, ...prev];
+            
+            // Si excede el límite, mantener solo las primeras 50 (las más recientes)
+            if (updatedAlerts.length > MAX_NOTIFICATIONS) {
+                return updatedAlerts.slice(0, MAX_NOTIFICATIONS);
+            }
+            
+            return updatedAlerts;
+        });
     };
 
     const markAsRead = () => {

@@ -12,23 +12,25 @@ interface SensorModalProps {
 const generateHistoricalData = (sensor: SensorData) => {
   const data = [];
   const now = new Date();
-  
+
   for (let i = 30; i >= 0; i--) {
     const date = new Date(now);
     date.setDate(date.getDate() - i);
-    
+
     data.push({
       date: date.toLocaleDateString(),
       value: sensor.value * (0.9 + Math.random() * 0.2), // Variación aleatoria
       unit: sensor.unit
     });
   }
-  
+
   return data;
 };
 
+
 export const SensorModal = ({ sensor, onClose }: SensorModalProps) => {
   const [historicalData, setHistoricalData] = useState<any[]>([]);
+  console.log(sensor, "sensor en modal");
 
   useEffect(() => {
     if (sensor) {
@@ -67,9 +69,25 @@ export const SensorModal = ({ sensor, onClose }: SensorModalProps) => {
         return 'bg-red-100 text-red-800 border border-red-200';
     }
   };
+  const mapStatusToSpanish = (status: string): string => {
+    const statusMap: { [key: string]: string } = {
+      // Estados originales
+      'OK': 'NORMAL',
+      'WARNING': 'ADVERTENCIA',
+      'DANGER': 'PELIGRO',
+      'ERROR': 'ERROR',
+      // Tipos de alerta
+      'critical': 'CRÍTICO',
+      'warning': 'ADVERTENCIA',
+      'info': 'INFORMATIVO'
+    };
+
+    return statusMap[status] || status.toUpperCase();
+  };
+
 
   return (
-    <div 
+    <div
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
       onClick={handleBackdropClick}
     >
@@ -85,7 +103,7 @@ export const SensorModal = ({ sensor, onClose }: SensorModalProps) => {
                 Sensor {sensor.type} - {sensor.manufacturer}
               </p>
             </div>
-            <button 
+            <button
               onClick={onClose}
               className="text-white hover:text-red-200 hover:bg-white/10 rounded-full p-2 transition-all duration-200"
             >
@@ -108,7 +126,7 @@ export const SensorModal = ({ sensor, onClose }: SensorModalProps) => {
               </div>
               <div className="flex justify-center">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(sensor.status)}`}>
-                  {sensor.status}
+                  {mapStatusToSpanish(sensor.status)}
                 </span>
               </div>
             </div>
@@ -139,7 +157,7 @@ export const SensorModal = ({ sensor, onClose }: SensorModalProps) => {
                   </div>
                   <div className="flex justify-between items-center py-2">
                     <span className="text-gray-600 font-medium">Instalación:</span>
-                    <span className="text-gray-900">{sensor.installation}</span>
+                    <span className="text-gray-900">{sensor.installation_type}</span>
                   </div>
                 </div>
               </div>
@@ -163,12 +181,12 @@ export const SensorModal = ({ sensor, onClose }: SensorModalProps) => {
                   </div>
                   <div className="flex justify-between items-center py-2">
                     <span className="text-gray-600 font-medium">Calibración:</span>
-                    <span className="text-gray-900">{sensor.metadata.calibration_date}</span>
+                    <span className="text-gray-900">{sensor.metadata.last_calibration}</span>
                   </div>
                 </div>
               </div>
             </div>
-            
+
             {/* Historical Data Chart */}
             <div className="xl:col-span-2">
               <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
@@ -182,17 +200,17 @@ export const SensorModal = ({ sensor, onClose }: SensorModalProps) => {
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={historicalData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis 
-                        dataKey="date" 
+                      <XAxis
+                        dataKey="date"
                         tick={{ fontSize: 12, fill: '#64748b' }}
                         stroke="#cbd5e1"
                       />
-                      <YAxis 
+                      <YAxis
                         tick={{ fontSize: 12, fill: '#64748b' }}
                         stroke="#cbd5e1"
                         label={{ value: sensor.unit, angle: -90, position: 'insideLeft' }}
                       />
-                      <Tooltip 
+                      <Tooltip
                         contentStyle={{
                           backgroundColor: 'white',
                           border: '1px solid #e2e8f0',
@@ -201,10 +219,10 @@ export const SensorModal = ({ sensor, onClose }: SensorModalProps) => {
                         }}
                       />
                       <Legend />
-                      <Line 
-                        type="monotone" 
-                        dataKey="value" 
-                        stroke="#6366f1" 
+                      <Line
+                        type="monotone"
+                        dataKey="value"
+                        stroke="#6366f1"
                         strokeWidth={2}
                         dot={{ fill: '#6366f1', strokeWidth: 2, r: 4 }}
                         activeDot={{ r: 6, fill: '#4f46e5' }}

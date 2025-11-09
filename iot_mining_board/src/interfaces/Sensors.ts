@@ -12,6 +12,7 @@ export interface SensorData {
   model: string;
   latitude?: number;
   longitude?: number;
+  installation_type?: string;
   metadata?: any; // Para conservar datos adicionales
 }
 export interface Sensor {

@@ -57,6 +57,21 @@ export const useSensorData = (): UseSensorDataReturn => {
         activeRulesRef.current = getActiveRules();
     }, [getActiveRules]);
 
+   const mapStatusToSpanish = (status: string): string => {
+        const statusMap: { [key: string]: string } = {
+            // Estados originales
+            'OK': 'NORMAL',
+            'WARNING': 'ADVERTENCIA',
+            'DANGER': 'PELIGRO',
+            'ERROR': 'ERROR',
+            // Tipos de alerta
+            'critical': 'CRÍTICO',
+            'warning': 'ADVERTENCIA',
+            'info': 'INFORMATIVO'
+        };
+
+        return statusMap[status] || status.toUpperCase();
+    };
     const sensorDataToAlert = useCallback((
         data: SensorData,
         rule?: AlertRule
@@ -81,7 +96,7 @@ export const useSensorData = (): UseSensorDataReturn => {
             }),
             message: rule
                 ? `⚠️ ${rule.name}: ${data.value} ${data.unit} (${getConditionText(rule)})`
-                : `Estado: ${data.status}. Sensor ${data.model} reporta valor fuera de rango normal.`,
+                : `Estado: ${mapStatusToSpanish(data.status)}. Sensor ${data.model} reporta valor fuera de rango normal.`,
             id: `alert_${data.id}_${Date.now()}`,
             ruleId: rule?.id,
             sensorData: modifiedSensorData,
