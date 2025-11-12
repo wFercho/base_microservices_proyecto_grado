@@ -38,7 +38,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'Metano - Límite Explosivo',
         sensorType: 'Metano',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 0.8,
         level: 'critical',
         zones: [],
@@ -62,7 +62,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'Ruido - Exposición Larga',
         sensorType: 'Ruido',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 85,
         level: 'warning',
         zones: [],
@@ -83,7 +83,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'PM2.5 - Material Particulado Fino',
         sensorType: 'PM2.5',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 75,
         level: 'warning',
         zones: [],
@@ -95,7 +95,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'PM10 - Material Particulado',
         sensorType: 'PM10',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 150,
         level: 'warning',
         zones: [],
@@ -107,7 +107,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'CO2 - Dióxido de Carbono Alto',
         sensorType: 'CO2',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 5000,
         level: 'warning',
         zones: [],
@@ -119,7 +119,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'Temperatura - Estrés Térmico',
         sensorType: 'Temperatura',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 32,
         level: 'warning',
         zones: [],
@@ -140,7 +140,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'Vibración - Equipo Crítico',
         sensorType: 'Vibracion',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 10,
         level: 'critical',
         zones: [],
@@ -152,7 +152,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'Temperatura - Sobrecalentamiento',
         sensorType: 'Temperatura',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 80,
         level: 'critical',
         zones: [],
@@ -164,7 +164,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'Humedad - Corrosión Equipos',
         sensorType: 'Humedad',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 75,
         level: 'warning',
         zones: [],
@@ -185,7 +185,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'H2S - Sulfuro de Hidrógeno',
         sensorType: 'H2S',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 10,
         level: 'critical',
         zones: [],
@@ -197,7 +197,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'NO2 - Dióxido de Nitrógeno',
         sensorType: 'NO2',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 3,
         level: 'warning',
         zones: [],
