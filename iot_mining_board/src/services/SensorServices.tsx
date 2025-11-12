@@ -60,7 +60,7 @@ export const SensorService = {
   // Crear un nuevo sensor
   async createSensor(sensorData: Omit<Sensor, 'id' | 'created_at' | 'updated_at'>): Promise<Sensor> {
     try {
-      const response = await api.post(`/sensors`, sensorData);
+      const response = await api.post(`/sensors/`, sensorData);
       return response.data;
     } catch (error) {
       console.error('Error creating sensor:', error);
