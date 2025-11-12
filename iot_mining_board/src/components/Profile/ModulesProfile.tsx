@@ -127,6 +127,22 @@ export const ModulesPage: React.FC = () => {
         return names[category] || category;
     };
 
+    const mapStatusToSpanish = (status: string): string => {
+        const statusMap: { [key: string]: string } = {
+            // Estados originales
+            'OK': 'NORMAL',
+            'WARNING': 'ADVERTENCIA',
+            'DANGER': 'PELIGRO',
+            'ERROR': 'ERROR',
+            // Tipos de alerta
+            'critical': 'CRÍTICO',
+            'warning': 'ADVERTENCIA',
+            'info': 'INFORMATIVO'
+        };
+
+        return statusMap[status] || status.toUpperCase();
+    };
+
     // Exportar información del módulo
     const exportModuleInfo = (module: PredefinedProfile) => {
         const data = {
@@ -190,8 +206,8 @@ export const ModulesPage: React.FC = () => {
                                     onClick={() => applyModule(selectedModule)}
                                     disabled={isApplying}
                                     className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${isApplying
-                                            ? 'bg-gray-400 text-white cursor-not-allowed'
-                                            : 'bg-green-600 text-white hover:bg-green-700'
+                                        ? 'bg-gray-400 text-white cursor-not-allowed'
+                                        : 'bg-green-600 text-white hover:bg-green-700'
                                         }`}
                                 >
                                     {isApplying ? (
@@ -287,10 +303,10 @@ export const ModulesPage: React.FC = () => {
                                                 </span>
                                             )}
                                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${rule.level === 'critical' ? 'bg-red-100 text-red-800' :
-                                                    rule.level === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                                                        'bg-blue-100 text-blue-800'
+                                                rule.level === 'warning' ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-blue-100 text-blue-800'
                                                 }`}>
-                                                {rule.level.toUpperCase()}
+                                                {mapStatusToSpanish(rule.level)}
                                             </span>
                                         </div>
                                     </div>
@@ -390,8 +406,8 @@ export const ModulesPage: React.FC = () => {
                         <div
                             key={module.id}
                             className={`bg-white rounded-lg shadow-lg p-6 cursor-pointer transition-all duration-300 border-2 ${isApplied
-                                    ? 'border-green-500 hover:border-green-600'
-                                    : 'border-transparent hover:border-blue-300 hover:shadow-xl'
+                                ? 'border-green-500 hover:border-green-600'
+                                : 'border-transparent hover:border-blue-300 hover:shadow-xl'
                                 }`}
                             onClick={() => setSelectedModule(module)}
                         >
@@ -448,10 +464,10 @@ export const ModulesPage: React.FC = () => {
                                 }}
                                 disabled={isApplying}
                                 className={`w-full py-2 px-4 rounded-lg transition-colors font-medium ${isApplied
-                                        ? 'bg-green-100 text-green-700 cursor-default'
-                                        : isApplying
-                                            ? 'bg-gray-400 text-white cursor-not-allowed'
-                                            : 'bg-blue-600 text-white hover:bg-blue-700'
+                                    ? 'bg-green-100 text-green-700 cursor-default'
+                                    : isApplying
+                                        ? 'bg-gray-400 text-white cursor-not-allowed'
+                                        : 'bg-blue-600 text-white hover:bg-blue-700'
                                     }`}
                             >
                                 {isApplying ? (

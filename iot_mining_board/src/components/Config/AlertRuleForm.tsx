@@ -15,18 +15,18 @@ interface AlertRuleFormProps {
 const SENSOR_TYPES = [
     { value: 'PM10', label: 'PM10 - Material particulado ≤10µm', norm: 'ISO 14001' },
     { value: 'PM2.5', label: 'PM2.5 - Material particulado ≤2.5µm', norm: 'EPA Standard' },
-    { value: 'Temperatura', label: 'Temperatura ambiente', norm: 'DS 024-2016-EM' },
+    { value: 'Temperatura', label: 'Temperatura ambiente', norm: 'ATEX' },
     { value: 'Humedad', label: 'Humedad relativa', norm: 'OSHA' },
-    { value: 'CO', label: 'Monóxido de carbono (CO)', norm: 'DS 024-2016-EM' },
-    { value: 'CO2', label: 'Dióxido de carbono (CO2)', norm: 'DS 024-2016-EM' },
-    { value: 'O2', label: 'Oxígeno (O2)', norm: 'DS 024-2016-EM' },
-    { value: 'H2S', label: 'Sulfuro de hidrógeno (H2S)', norm: 'DS 024-2016-EM' },
-    { value: 'NO2', label: 'Dióxido de nitrógeno (NO2)', norm: 'DS 024-2016-EM' },
-    { value: 'Ruido', label: 'Nivel de presión sonora', norm: 'DS 024-2016-EM' },
+    { value: 'CO', label: 'Monóxido de carbono (CO)', norm: 'ATEX' },
+    { value: 'CO2', label: 'Dióxido de carbono (CO2)', norm: 'ATEX' },
+    { value: 'O2', label: 'Oxígeno (O2)', norm: 'ATEX' },
+    { value: 'H2S', label: 'Sulfuro de hidrógeno (H2S)', norm: 'ATEX' },
+    { value: 'NO2', label: 'Dióxido de nitrógeno (NO2)', norm: 'ATEX' },
+    { value: 'Ruido', label: 'Nivel de presión sonora', norm: 'ATEX' },
     { value: 'Vibracion', label: 'Vibración cuerpo completo', norm: 'ISO 2631' },
-    { value: 'Metano', label: 'Gas metano (CH4)', norm: 'DS 024-2016-EM' },
-    { value: 'Polvo_Respirable', label: 'Polvo respirable', norm: 'DS 024-2016-EM' },
-    { value: 'Iluminacion', label: 'Nivel de iluminación', norm: 'DS 024-2016-EM' }
+    { value: 'Metano', label: 'Gas metano (CH4)', norm: 'ATEX' },
+    { value: 'Polvo_Respirable', label: 'Polvo respirable', norm: 'ATEX' },
+    { value: 'Iluminacion', label: 'Nivel de iluminación', norm: 'ATEX' }
 ];
 
 

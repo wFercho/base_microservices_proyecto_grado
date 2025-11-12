@@ -19,7 +19,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
   {
     id: 'mining-safety',
     name: 'Seguridad Minera',
-    description: 'Reglas para minería conforme a DS 024-2016-EM',
+    description: 'Reglas para minería conforme a ATEX',
     category: 'safety',
     icon: '⛏️',
     rules: [
@@ -50,7 +50,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'O2 - Oxígeno Bajo',
         sensorType: 'O2',
-        condition: 'less',
+        condition: 'menor que',
         value: 19.5,
         level: 'critical',
         zones: [],
@@ -209,7 +209,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'Iluminación - Mínimo Seguro',
         sensorType: 'Iluminacion',
-        condition: 'less',
+        condition: 'menor que',
         value: 50,
         level: 'warning',
         zones: [],
