@@ -6,7 +6,7 @@ export interface AlertRule {
   id: string;
   name: string;
   sensorType: string;
-  condition: 'greater' | 'less' | 'equal' | 'range';
+  condition: string;
   value: number;
   maxValue?: number;
   level: 'info' | 'warning' | 'critical';

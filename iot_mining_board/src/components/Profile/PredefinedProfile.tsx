@@ -26,7 +26,7 @@ export const PREDEFINED_PROFILES: PredefinedProfile[] = [
       {
         name: 'CO - Monóxido de Carbono Crítico',
         sensorType: 'CO',
-        condition: 'greater',
+        condition: 'mayor que',
         value: 35,
         level: 'critical',
         zones: [],
